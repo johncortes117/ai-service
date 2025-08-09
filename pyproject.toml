@@ -1,10 +1,10 @@
 [tool.poetry]
 name = "qikai"
 version = "0.1.0"
-description = "AI processing backend for Qik messages"
-authors = ["John Cortés <stevencortespozo@gmail.com>"] # Replace with your info
+description = "Backend & AI"
+authors = ["John Cortés <stevencortespozo@gmail.com>"]
 readme = "README.md"
-packages = [{include = "qikai"}]
+packages = [{include = "app"}]
 
 [tool.poetry.dependencies]
 python = "^3.9" # Or your target Python version
