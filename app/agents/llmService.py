@@ -1,7 +1,7 @@
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import BaseMessage
 from pydantic import BaseModel
-from typing import List, Type, Dict, Any
+from typing import List, Type
 
 from ..core.config import OPENAI_API_KEY
 
