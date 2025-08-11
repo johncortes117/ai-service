@@ -1,11 +1,15 @@
 import uuid
 import os
 from typing import List, Optional
-from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, HTTPException
 
-from app.api.services import procesar_archivos_pdf_zip
-
+# Import service functions
+from .services import (
+    process_pdf_zip_files,
+    save_file_structure,
+    extract_document_information
+)
+from .constants import BASE_UPLOAD_DIRECTORY
 
 app = FastAPI(
     title="AI Service API",
@@ -18,71 +22,130 @@ async def read_root():
     return {"message": "AI Service API is running!", "status": "healthy"}
 
 
-@app.post("/procesar_y_estructurar_pdfs")
-async def procesar_y_estructurar_pdfs(file: UploadFile = File(...)):
+@app.post("/process_and_structure_pdfs")
+async def processAndStructurePdfs(file: UploadFile = File(...)):
     """
-    Procesa archivos PDF o ZIP que contengan PDFs
+    Process PDF files or ZIP files containing PDFs
     """
     try:
-        result = await procesar_archivos_pdf_zip(file)
+        result = await processPdfZipFiles(file)
         return {
-            "message": "Archivos procesados exitosamente",
+            "message": "Files processed successfully",
             **result
         }
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error procesando archivo: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
 
 
-
-BASE_UPLOAD_DIRECTORY = "./proposals_uploads"
-
-@app.post("/proposals/upload_differentiated/{id_licitacion}/{nombre_empresa}/{id_proposal}")
-async def upload_differentiated_files(
-    id_licitacion: str,
-    nombre_empresa: str,
-    id_proposal: str,
+@app.post("/propuestas/upload_differentiated/{tender_id}/{contractor_id}/{company_name}")
+async def uploadDifferentiatedFiles(
+    tender_id: str,
+    contractor_id: str,
+    company_name: str,
     principal_file: UploadFile = File(...),
-    anexos_files: List[UploadFile] = File(...)
+    attachmentFiles: List[UploadFile] = File(...)
 ):
     """
-    Sube y organiza archivos de propuestas con estructura jerárquica:
-    proposals_uploads/{id_licitacion}/{nombre_empresa}/{id_proposal}/
+    Upload and organize proposal files with hierarchical structure:
+    data/propuestas/tender_{tender_id}/contractor_{contractor_id}/{company_name}/
     """
-    # Crear estructura de directorios: licitacion/empresa/proposal
-    proposal_dir = os.path.join(
-        BASE_UPLOAD_DIRECTORY, 
-        id_licitacion, 
-        nombre_empresa, 
-        id_proposal
-    )
-    os.makedirs(proposal_dir, exist_ok=True)
-
-    # Procesar archivo principal
-    principal_filename = f"PRINCIPAL_{uuid.uuid4()}{os.path.splitext(principal_file.filename)[1]}"
-    principal_path = os.path.join(proposal_dir, principal_filename)
-    
-    with open(principal_path, "wb") as buffer:
-        buffer.write(await principal_file.read())
-
-    # Procesar archivos anexos
-    saved_anexos = []
-    for anexo_file in anexos_files:
-        anexo_filename = f"ANEXO_{uuid.uuid4()}{os.path.splitext(anexo_file.filename)[1]}"
-        anexo_path = os.path.join(proposal_dir, anexo_filename)
+    try:
+        # Create directory structure using utility function
+        proposalDir = createProposalStructure(tender_id, contractor_id, company_name)
         
-        with open(anexo_path, "wb") as buffer:
-            buffer.write(await anexo_file.read())
-        saved_anexos.append(anexo_filename)
+        # Save principal file
+        principalFilename = await saveFileWithUuid(principal_file, proposalDir, "PRINCIPAL")
+        
+        # Save attachment files
+        savedAttachments = []
+        for attachmentFile in attachmentFiles:
+            attachmentFilename = await saveFileWithUuid(attachmentFile, proposalDir, "ATTACHMENT")
+            savedAttachments.append(attachmentFilename)
 
-    return {
-        "message": "Archivos recibidos y clasificados correctamente.",
-        "id_licitacion": id_licitacion,
-        "nombre_empresa": nombre_empresa,
-        "id_proposal": id_proposal,
-        "ruta_completa": proposal_dir,
-        "archivo_principal": principal_filename,
-        "archivos_anexos": saved_anexos,
-        "total_anexos": len(saved_anexos)
-    }
+        return {
+            "message": "Files received and classified correctly.",
+            "tender_id": tender_id,
+            "contractor_id": contractor_id,
+            "company_name": company_name,
+            "principal_file": principalFilename,
+            "attachment_files": savedAttachments,
+            "total_attachments": len(savedAttachments),
+            "directory": proposalDir
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing files: {str(e)}")
+
+
+@app.post("/tenders/upload")
+async def uploadTenderPdf(file: UploadFile = File(...)):
+    """
+    Upload a tender PDF file. Creates sequential tender IDs (1, 2, 3...)
+    If the tender already exists, returns existing information without creating new files.
+    """
+    try:
+        # Get the next available tender ID
+        tenderId = getNextTenderId()
+        
+        # Check if tender already exists
+        if checkTenderExists(tenderId):
+            return {
+                "message": "Tender already exists, no new files created.",
+                "tender_id": tenderId,
+                "status": "exists",
+                "directory": f"./data/tenders/tender_{tenderId}"
+            }
+        
+        # Save the tender PDF
+        filename = await saveTenderPdf(file, tenderId)
+        
+        return {
+            "message": "Tender PDF uploaded successfully.",
+            "tender_id": tenderId,
+            "filename": filename,
+            "status": "created",
+            "directory": f"./data/tenders/tender_{tenderId}"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing tender PDF: {str(e)}")
+
+
+@app.post("/tenders/upload/{tender_id}")
+async def uploadTenderPdfWithId(tender_id: str, file: UploadFile = File(...)):
+    """
+    Upload a tender PDF file with specific tender ID.
+    If the tender already exists, returns existing information without creating new files.
+    """
+    try:
+        # Check if tender already exists
+        if checkTenderExists(tender_id):
+            return {
+                "message": "Tender already exists, no new files created.",
+                "tender_id": tender_id,
+                "status": "exists",
+                "directory": f"./data/tenders/tender_{tender_id}"
+            }
+        
+        # Save the tender PDF
+        filename = await saveTenderPdf(file, tender_id)
+        
+        return {
+            "message": "Tender PDF uploaded successfully.",
+            "tender_id": tender_id,
+            "filename": filename,
+            "status": "created",
+            "directory": f"./data/tenders/tender_{tender_id}"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing tender PDF: {str(e)}")
+    
+    
+    
