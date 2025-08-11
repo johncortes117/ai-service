@@ -15,7 +15,7 @@ async def processPdfZipFiles(file: UploadFile):
 
 def createProposalStructure(tender_id: str, contractor_id: str, company_name: str) -> str:
     """Create directory structure for proposals"""
-    base_dir = "./data/propuestas"
+    base_dir = "./data/proposals"
     proposal_dir = os.path.join(
         base_dir, 
         f"tender_{tender_id}", 

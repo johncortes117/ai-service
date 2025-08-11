@@ -64,84 +64,84 @@ async def extractLastPageFromUploadFile(file: UploadFile) -> str:
             detail=f"Invalid file type. Expected PDF, received: {file.content_type}"
         )
     
-    tempFilePath = None
+    temp_file_path = None
     try:
         # Create temporary file
-        fileExtension = Path(file.filename).suffix
-        tempFilename = f"temp_lastpage_{hash(file.filename)}{fileExtension}"
-        tempFilePath = os.path.join(TEMP_DIR, tempFilename)
+        file_extension = Path(file.filename).suffix
+        temp_filename = f"temp_lastpage_{hash(file.filename)}{file_extension}"
+        temp_file_path = os.path.join(TEMP_DIR, temp_filename)
         
         # Save uploaded file to temp location
-        with open(tempFilePath, "wb") as buffer:
+        with open(temp_file_path, "wb") as buffer:
             content = await file.read()
             buffer.write(content)
         
         # Extract text from last page
-        lastPageText = extractLastPageFromPdf(tempFilePath)
+        last_page_text = extractLastPageFromPdf(temp_file_path)
         
-        return lastPageText
+        return last_page_text
         
     finally:
         # Clean up temporary file
-        if tempFilePath and os.path.exists(tempFilePath):
-            os.remove(tempFilePath)
+        if temp_file_path and os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
 
 
 async def processPdfZipFiles(file: UploadFile) -> dict:
     """Function to process PDF or ZIP files containing PDFs"""
-    allowedTypes = ["application/pdf", "application/zip", "application/x-zip-compressed"]
-    if file.content_type not in allowedTypes:
+    allowed_types = ["application/pdf", "application/zip", "application/x-zip-compressed"]
+    if file.content_type not in allowed_types:
         raise HTTPException(
             status_code=400, 
             detail=f"Invalid file type. Expected PDF or ZIP, received: {file.content_type}"
         )
     
-    tempFilePath = None
-    extractDir = None
+    temp_file_path = None
+    extract_dir = None
     
     try:
-        fileExtension = Path(file.filename).suffix
-        tempFilename = f"temp_{hash(file.filename)}{fileExtension}"
-        tempFilePath = os.path.join(TEMP_DIR, tempFilename)
+        file_extension = Path(file.filename).suffix
+        temp_filename = f"temp_{hash(file.filename)}{file_extension}"
+        temp_file_path = os.path.join(TEMP_DIR, temp_filename)
         
-        with open(tempFilePath, "wb") as buffer:
+        with open(temp_file_path, "wb") as buffer:
             content = await file.read()
             buffer.write(content)
         
-        processedFiles = []
+        processed_files = []
         
         if file.content_type == "application/pdf":
-            extractedText = extractTextFromPdf(tempFilePath)
-            processedFiles.append({
+            extracted_text = extractTextFromPdf(temp_file_path)
+            processed_files.append({
                 "filename": file.filename,
                 "type": "pdf",
-                "text_length": len(extractedText),
+                "text_length": len(extracted_text),
                 "status": "processed",
-                "content": extractedText[:500] + "..." if len(extractedText) > 500 else extractedText
+                "content": extracted_text[:500] + "..." if len(extracted_text) > 500 else extracted_text
             })
             
         elif file.content_type in ["application/zip", "application/x-zip-compressed"]:
-            extractDir = os.path.join(TEMP_DIR, f"extracted_{hash(file.filename)}")
-            os.makedirs(extractDir, exist_ok=True)
+            extract_dir = os.path.join(TEMP_DIR, f"extracted_{hash(file.filename)}")
+            os.makedirs(extract_dir, exist_ok=True)
             
-            with zipfile.ZipFile(tempFilePath, 'r') as zipRef:
-                zipRef.extractall(extractDir)
+            with zipfile.ZipFile(temp_file_path, 'r') as zip_ref:
+                zip_ref.extractall(extract_dir)
             
-            for root, dirs, files in os.walk(extractDir):
+            for root, dirs, files in os.walk(extract_dir):
                 for filename in files:
                     if filename.lower().endswith('.pdf'):
-                        pdfPath = os.path.join(root, filename)
+                        pdf_path = os.path.join(root, filename)
                         try:
-                            extractedText = extractTextFromPdf(pdfPath)
-                            processedFiles.append({
+                            extracted_text = extractTextFromPdf(pdf_path)
+                            processed_files.append({
                                 "filename": filename,
                                 "type": "pdf_from_zip",
-                                "text_length": len(extractedText),
+                                "text_length": len(extracted_text),
                                 "status": "processed",
-                                "content": extractedText[:500] + "..." if len(extractedText) > 500 else extractedText
+                                "content": extracted_text[:500] + "..." if len(extracted_text) > 500 else extracted_text
                             })
                         except Exception as e:
-                            processedFiles.append({
+                            processed_files.append({
                                 "filename": filename,
                                 "type": "pdf_from_zip",
                                 "status": "error",
@@ -151,36 +151,48 @@ async def processPdfZipFiles(file: UploadFile) -> dict:
         return {
             "original_filename": file.filename,
             "content_type": file.content_type,
-            "processed_files": processedFiles,
-            "total_files": len(processedFiles)
+            "processed_files": processed_files,
+            "total_files": len(processed_files)
         }
         
     finally:
-        if tempFilePath and os.path.exists(tempFilePath):
-            os.remove(tempFilePath)
-        if extractDir and os.path.exists(extractDir):
-            shutil.rmtree(extractDir)
+        if temp_file_path and os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
+        if extract_dir and os.path.exists(extract_dir):
+            shutil.rmtree(extract_dir)
 
 
-def createProposalStructure(tenderId: str, contractorId: str, companyName: str) -> str:
+def createProposalStructure(tender_id: str, contractor_id: str, company_name: str) -> str:
     """
     Create directory structure for a proposal
-    New structure: data/propuestas/tender_{tenderId}/contractor_{contractorId}/companyName/
+    New structure: data/proposals/tender_{tender_id}/contractor_{contractor_id}/company_name/
     Returns the path of the created directory
     """
     # Clean names to avoid issues with special characters
-    companyNameClean = "".join(c for c in companyName if c.isalnum() or c in (' ', '-', '_')).rstrip()
+    # Allow alphanumeric, spaces, hyphens, underscores, and dots
+    company_name_clean = "".join(c for c in company_name if c.isalnum() or c in (' ', '-', '_', '.')).rstrip()
+    
+    # Replace multiple spaces with single space and remove leading/trailing spaces
+    company_name_clean = ' '.join(company_name_clean.split())
+    
+    # If name becomes empty after cleaning, use a default
+    if not company_name_clean:
+        company_name_clean = "UNKNOWN_COMPANY"
     
     # Add prefixes to make directories more descriptive
-    tenderDirName = f"tender_{tenderId}"
-    contractorDirName = f"contractor_{contractorId}"
+    tender_dir_name = f"tender_{tender_id}"
+    contractor_dir_name = f"contractor_{contractor_id}"
     
-    # Create structure: data/propuestas/tender_X/contractor_Y/companyName/
-    baseDir = "./data/propuestas"
-    proposalDir = os.path.join(baseDir, tenderDirName, contractorDirName, companyNameClean)
-    os.makedirs(proposalDir, exist_ok=True)
+    # Create structure: data/proposals/tender_X/contractor_Y/company_name/
+    base_dir = "./data/proposals"
+    proposal_dir = os.path.join(base_dir, tender_dir_name, contractor_dir_name, company_name_clean)
     
-    return proposalDir
+    try:
+        os.makedirs(proposal_dir, exist_ok=True)
+    except Exception as e:
+        raise Exception(f"Error creating directory structure: {e}")
+    
+    return proposal_dir
 
 
 async def saveFileWithUuid(file: UploadFile, directory: str, prefix: str) -> str:
@@ -189,13 +201,19 @@ async def saveFileWithUuid(file: UploadFile, directory: str, prefix: str) -> str
     """
     import uuid
     
-    fileExtension = os.path.splitext(file.filename)[1]
-    filename = f"{prefix}_{uuid.uuid4()}{fileExtension}"
-    filePath = os.path.join(directory, filename)
+    file_extension = os.path.splitext(file.filename)[1]
+    filename = f"{prefix}_{uuid.uuid4()}{file_extension}"
+    file_path = os.path.join(directory, filename)
     
-    with open(filePath, "wb") as buffer:
+    # Reset file pointer to beginning in case it was read before
+    await file.seek(0)
+    
+    with open(file_path, "wb") as buffer:
         content = await file.read()
         buffer.write(content)
+    
+    # Reset file pointer again for potential future reads
+    await file.seek(0)
     
     return filename
 
@@ -228,37 +246,37 @@ def getNextTenderId() -> str:
     return str(max(existingIds) + 1)
 
 
-def createTenderDirectory(tenderId: str) -> str:
+def createTenderDirectory(tender_id: str) -> str:
     """
-    Create tender directory structure: data/tenders/tender_{tenderId}/
+    Create tender directory structure: data/tenders/tender_{tender_id}/
     Returns the directory path
     """
-    baseDir = "./data/tenders"
-    tenderDirName = f"tender_{tenderId}"
-    tenderDir = os.path.join(baseDir, tenderDirName)
-    os.makedirs(tenderDir, exist_ok=True)
+    base_dir = "./data/tenders"
+    tender_dir_name = f"tender_{tender_id}"
+    tender_dir = os.path.join(base_dir, tender_dir_name)
+    os.makedirs(tender_dir, exist_ok=True)
     
-    return tenderDir
+    return tender_dir
 
 
-def checkTenderExists(tenderId: str) -> bool:
+def checkTenderExists(tender_id: str) -> bool:
     """
     Check if a tender directory already exists and contains files
     """
-    tenderDirName = f"tender_{tenderId}"
-    tenderDir = os.path.join("./data/tenders", tenderDirName)
-    if not os.path.exists(tenderDir):
+    tender_dir_name = f"tender_{tender_id}"
+    tender_dir = os.path.join("./data/tenders", tender_dir_name)
+    if not os.path.exists(tender_dir):
         return False
     
     # Check if directory has any PDF files
-    for item in os.listdir(tenderDir):
+    for item in os.listdir(tender_dir):
         if item.lower().endswith('.pdf'):
             return True
     
     return False
 
 
-async def saveTenderPdf(file: UploadFile, tenderId: str) -> str:
+async def saveTenderPdf(file: UploadFile, tender_id: str) -> str:
     """
     Save tender PDF file with specific naming convention
     """
@@ -269,14 +287,106 @@ async def saveTenderPdf(file: UploadFile, tenderId: str) -> str:
             detail=f"Invalid file type. Expected PDF, received: {file.content_type}"
         )
     
-    tenderDir = createTenderDirectory(tenderId)
+    tender_dir = createTenderDirectory(tender_id)
     
-    # Create filename: TENDER_{tenderId}.pdf
-    filename = f"TENDER_{tenderId}.pdf"
-    filePath = os.path.join(tenderDir, filename)
+    # Create filename: TENDER_{tender_id}.pdf
+    filename = f"TENDER_{tender_id}.pdf"
+    file_path = os.path.join(tender_dir, filename)
     
-    with open(filePath, "wb") as buffer:
+    with open(file_path, "wb") as buffer:
         content = await file.read()
         buffer.write(content)
     
     return filename
+
+
+def generateTenderJsonData(tender_id: str) -> dict:
+    """
+    Generate complete JSON data for a tender including all proposals
+    Format required for external endpoint connection
+    """
+    import json
+    from pathlib import Path
+    
+    # Paths for tender and proposals
+    tender_dir = f"./data/tenders/tender_{tender_id}"
+    proposals_dir = f"./data/proposals/tender_{tender_id}"
+    
+    # Initialize result structure
+    result = {
+        "tenderName": "",
+        "tenderText": "",
+        "proposals": []
+    }
+    
+    # Extract tender information
+    try:
+        tender_path = Path(tender_dir)
+        if tender_path.exists():
+            # Find the tender PDF file
+            tender_files = list(tender_path.glob("*.pdf"))
+            if tender_files:
+                tender_file = tender_files[0]  # Take the first PDF
+                result["tenderName"] = tender_file.stem  # Filename without extension
+                result["tenderText"] = extractTextFromPdf(str(tender_file))
+    except Exception as e:
+        print(f"Error processing tender: {e}")
+        result["tenderName"] = f"TENDER_{tender_id}"
+        result["tenderText"] = f"Error extracting tender content: {e}"
+    
+    # Extract proposals information
+    try:
+        proposals_path = Path(proposals_dir)
+        if proposals_path.exists():
+            # Iterate through each contractor directory
+            for contractor_dir in proposals_path.iterdir():
+                if contractor_dir.is_dir() and contractor_dir.name.startswith("contractor_"):
+                    # Iterate through each company directory
+                    for company_dir in contractor_dir.iterdir():
+                        if company_dir.is_dir():
+                            proposal_data = {
+                                "bidderName": company_dir.name,
+                                "mainFormText": "",
+                                "annexIndexText": "",
+                                "annexes": {}
+                            }
+                            
+                            # Process files in company directory
+                            pdf_files = list(company_dir.glob("*.pdf"))
+                            principal_files = [f for f in pdf_files if f.name.startswith("PRINCIPAL_")]
+                            attachment_files = [f for f in pdf_files if f.name.startswith("ATTACHMENT_")]
+                            
+                            # Extract main form text (PRINCIPAL file)
+                            if principal_files:
+                                principal_file = principal_files[0]
+                                proposal_data["mainFormText"] = extractTextFromPdf(str(principal_file))
+                                # Extract last page for annexIndexText
+                                proposal_data["annexIndexText"] = extractLastPageFromPdf(str(principal_file))
+                            
+                            # Extract annexes (ATTACHMENT files)
+                            for i, attachment_file in enumerate(attachment_files, 1):
+                                annex_key = f"annex{i}"
+                                proposal_data["annexes"][annex_key] = extractTextFromPdf(str(attachment_file))
+                            
+                            result["proposals"].append(proposal_data)
+    except Exception as e:
+        print(f"Error processing proposals: {e}")
+    
+    return result
+
+
+async def generateTenderJsonDataAsync(tender_id: str) -> dict:
+    """
+    Async version of generateTenderJsonData for use in FastAPI endpoints
+    """
+    # Since file operations are I/O bound, we can run the sync version
+    # in a thread pool for better async performance
+    import asyncio
+    import concurrent.futures
+    
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        result = await asyncio.get_event_loop().run_in_executor(
+            executor, generateTenderJsonData, tender_id
+        )
+    
+    return result
