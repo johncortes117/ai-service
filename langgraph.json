@@ -1,6 +1,6 @@
 {
   "dependencies": "pyproject.toml",
   "graphs": {
-    "blueprint_creator": "src.agents.blueprint_creator.graph_definition:app"
+    "blueprint_creator": "app.agents.tenderAnalyzer.mainGraph:agent_graph"
   }
 }
