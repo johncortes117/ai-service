@@ -4,16 +4,31 @@ from .proposal_utils import (
     processPdfZipFiles,
     createProposalStructure,
     saveFileWithUuid,
+    saveAttachmentWithOriginalName,
     getNextTenderId,
     checkTenderExists,
-    saveTenderPdf
+    saveTenderPdf,
+    getContractorsByTender
+)
+
+from .pdf_json_utils import (
+    extractTextFromPdf,
+    extractLastPageFromPdf,
+    generateTenderJsonData,
+    generateTenderJsonDataAsync
 )
 
 __all__ = [
     "processPdfZipFiles",
     "createProposalStructure", 
     "saveFileWithUuid",
+    "saveAttachmentWithOriginalName",
     "getNextTenderId",
     "checkTenderExists",
-    "saveTenderPdf"
+    "saveTenderPdf",
+    "getContractorsByTender",
+    "extractTextFromPdf",
+    "extractLastPageFromPdf",
+    "generateTenderJsonData",
+    "generateTenderJsonDataAsync"
 ]

@@ -1,3 +1,22 @@
+def getAllTendersContractors() -> dict:
+    """Get contractors and companies for all tenders found in data/proposals"""
+    result = {}
+    proposals_base = Path("./data/proposals")
+    if not proposals_base.exists():
+        return result
+    for tender_dir in proposals_base.iterdir():
+        if tender_dir.is_dir() and tender_dir.name.startswith("tender_"):
+            tender_id = tender_dir.name.replace("tender_", "")
+            contractors = getContractorsByTender(tender_id)
+            result[tender_id] = contractors
+    return result
+def getContractorsBatch(tender_ids: list) -> dict:
+    """Get contractors and companies for a batch of tenders"""
+    result = {}
+    for tender_id in tender_ids:
+        contractors = getContractorsByTender(tender_id)
+        result[tender_id] = contractors
+    return result
 """
 Utility functions for the API
 """
@@ -39,6 +58,30 @@ async def saveFileWithUuid(file: UploadFile, directory: str, prefix: str) -> str
     return unique_filename
 
 
+async def saveAttachmentWithOriginalName(file: UploadFile, directory: str) -> str:
+    """Save attachment file preserving original filename"""
+    # Remove any path separators and clean the filename for security
+    clean_filename = os.path.basename(file.filename)
+    # Remove any potentially dangerous characters
+    clean_filename = "".join(c for c in clean_filename if c.isalnum() or c in "._-")
+    
+    file_path = os.path.join(directory, clean_filename)
+    
+    # Handle duplicate filenames by adding a number suffix
+    counter = 1
+    original_path = file_path
+    while os.path.exists(file_path):
+        name, ext = os.path.splitext(original_path)
+        file_path = f"{name}_{counter}{ext}"
+        counter += 1
+    
+    with open(file_path, "wb") as buffer:
+        content = await file.read()
+        buffer.write(content)
+    
+    return os.path.basename(file_path)
+
+
 def getNextTenderId() -> str:
     """Get the next available tender ID"""
     base_dir = "./data/tenders"
@@ -78,3 +121,38 @@ async def saveTenderPdf(file: UploadFile, tender_id: str) -> str:
         buffer.write(content)
     
     return filename
+
+
+def getContractorsByTender(tender_id: str) -> list:
+    """Get list of contractors for a specific tender"""
+    contractors = []
+    proposals_dir = Path(f"./data/proposals/tender_{tender_id}")
+    
+    if not proposals_dir.exists():
+        return contractors
+    
+    try:
+        # Iterate through contractor directories
+        for contractor_dir in proposals_dir.iterdir():
+            if contractor_dir.is_dir() and contractor_dir.name.startswith("contractor_"):
+                contractor_id = contractor_dir.name.replace("contractor_", "")
+                
+                # Get companies for this contractor
+                companies = []
+                for company_dir in contractor_dir.iterdir():
+                    if company_dir.is_dir():
+                        companies.append(company_dir.name)
+                
+                contractors.append({
+                    "contractorId": contractor_id,
+                    "companies": companies,
+                    "totalCompanies": len(companies)
+                })
+        
+        # Sort contractors by ID
+        contractors.sort(key=lambda x: int(x["contractorId"]))
+        
+    except Exception as e:
+        print(f"Error getting contractors for tender {tender_id}: {e}")
+    
+    return contractors
