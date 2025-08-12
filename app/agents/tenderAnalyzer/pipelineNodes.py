@@ -7,8 +7,7 @@ from .schemas.masterChecklist import MasterChecklist
 from .schemas.aggregatorSchemas import ExecutiveSummary
 from .prompts import CREATE_MASTER_CHECKLIST_PROMPT, AGGREGATE_ANALYSIS_PROMPT
 from .specialistSubgraph import specialistAuditorGraph
-import json
-
+import json # Asegúrate de que esta línea esté al principio del archivo
 
 async def createMasterChecklistNode(state: TenderAnalysisState) -> Dict[str, Any]:
     """
@@ -35,12 +34,20 @@ async def createMasterChecklistNode(state: TenderAnalysisState) -> Dict[str, Any
             temperature=0.3
         )
         
+        # --- LÍNEAS DE DEPURACIÓN CRUCIALES ---
+        print("\n" + "="*50)
+        print("--- MasterChecklist CREADO POR EL LLM: ---")
+        print(json.dumps(structured_response, indent=2, ensure_ascii=False))
+        print("="*50 + "\n")
+        # ----------------------------------------
+        
         print("--- MasterChecklist CREATED SUCCESSFULLY ---")
         return {"masterChecklist": structured_response}
 
     except Exception as e:
         print(f"--- ERROR in createMasterChecklistNode: {e} ---")
-        return {"error": f"Failed to create MasterChecklist: {e}"}
+        # Devolvemos un checklist vacío en caso de error para no romper el grafo
+        return {"masterChecklist": {"financialRequirements": [], "technicalRequirements": [], "legalRequirements": []}}
 
 
 

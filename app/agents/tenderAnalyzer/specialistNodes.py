@@ -1,3 +1,5 @@
+# app/agents/specialistNodes.py
+
 from typing import Dict, Any, List
 from .state import ProposalAuditState
 from .schemas.specialistFindings import FinancialFinding, TechnicalFinding, LegalFinding
@@ -11,10 +13,9 @@ from .schemas.masterChecklist import MasterChecklist, Requirement
 
 async def projectManagerRouterNode(state: ProposalAuditState) -> Dict[str, Any]:
     """
-    Acts as the intelligent router for a single proposal audit. This final version
-    is optimized for clarity, robustness, and follows a clean data flow.
+    Acts as the intelligent router for a single proposal audit. This version is
+    robust against filename mismatches (e.g., case, extensions, underscores).
     """
-    # 1. --- Get data safely from the state ---
     proposal = state.get("proposal", {})
     masterChecklist_dict = state.get("masterChecklist", {})
     companyName = proposal.get("companyName", "Unknown name")
@@ -25,24 +26,20 @@ async def projectManagerRouterNode(state: ProposalAuditState) -> Dict[str, Any]:
         masterChecklist = MasterChecklist.model_validate(masterChecklist_dict)
     except Exception as e:
         print(f"--- ❌ ROUTER ERROR: Could not validate MasterChecklist schema: {e} ---")
-        return {}
+        return {"technicalTasks": [], "financialTasks": [], "legalTasks": []}
 
     mainFormText = proposal.get("mainFormText")
     annexes = proposal.get("annexes", {})
     
-    financial_reqs = masterChecklist.financialRequirements
-    technical_reqs = masterChecklist.technicalRequirements
-    legal_reqs = masterChecklist.legalRequirements
-    all_requirements = financial_reqs + technical_reqs + legal_reqs
+    all_requirements = (masterChecklist.financialRequirements + 
+                        masterChecklist.technicalRequirements + 
+                        masterChecklist.legalRequirements)
     
     if not all_requirements:
         print("--- ⏩ ROUTER SKIPPING: No requirements found in MasterChecklist. ---")
-        return {
-            "technicalTasks": [], "financialTasks": [], "legalTasks": [], 
-            "findings": state.get("findings", [])
-        }
+        return {"technicalTasks": [], "financialTasks": [], "legalTasks": []}
     
-    # Step 1: Create the requirement-to-annex map
+    # Step 1: Create the requirement-to-annex map using the LLM
     requirement_names = [req.name for req in all_requirements]
     context_for_mapper = f"Requirements List: {requirement_names}\n---\nMain Proposal Form Text:\n{mainFormText}"
     messages = [
@@ -56,36 +53,53 @@ async def projectManagerRouterNode(state: ProposalAuditState) -> Dict[str, Any]:
         item.get("requirementName"): item.get("annexFilename")
         for item in structured_map_response.get("annexMap", [])
     }
+    
+    print("--- MAPA REQUISITO -> ANEXO CREADO POR LLM:", requirement_to_annex_map)
+    print("--- ANEXOS DISPONIBLES EN LA PROPUESTA:", list(annexes.keys()))
 
-    # Step 2: Prepare surgical tasks for each specialist
+    # Step 2: Prepare surgical tasks for each specialist with robust filename matching
     findings = state.get("findings", [])
     
+    def normalize_filename(name: str | None) -> str:
+        """Helper to compare filenames flexibly."""
+        if not name: return ""
+        return name.replace(".pdf", "").replace("_", " ").replace("-", " ").lower().strip()
+
+    def find_real_annex_key(mapped_name: str | None) -> str | None:
+        """Finds the actual key in the annexes dict, ignoring case, underscores, and .pdf extension."""
+        if not mapped_name: return None
+        normalized_mapped_name = normalize_filename(mapped_name)
+        for real_key in annexes.keys():
+            if normalize_filename(real_key) == normalized_mapped_name:
+                return real_key
+        return None
+
     def prepare_tasks_for_specialist(requirements_list: List[Requirement]) -> List[SpecialistTask]:
-        """Helper function to avoid code repetition."""
         tasks = []
         for requirement in requirements_list:
-            annex_filename = requirement_to_annex_map.get(requirement.name)
+            mapped_filename = requirement_to_annex_map.get(requirement.name)
+            real_annex_key = find_real_annex_key(mapped_filename)
 
-            if not annex_filename or not isinstance(annex_filename, str) or annex_filename not in annexes:
+            if not real_annex_key:
                 findings.append({
-                    "agentSource": "Project Manager", "severity": "HIGH",
+                    "agentSource": "Project Manager", "severity": "CRITICAL",
                     "requirementName": requirement.name, "requirementDetails": requirement.details,
                     "isCompliant": False,
-                    "observation": f"Omisión Documental: El formulario referencia al archivo '{annex_filename}' para este requisito, pero el anexo no fue encontrado, no es válido o no fue entregado.",
+                    "observation": f"Omisión Documental: El formulario referencia al anexo '{mapped_filename}', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
                     "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
                 })
                 continue
             
             tasks.append(SpecialistTask(
                 requirementToVerify=requirement,
-                evidenceText=annexes[annex_filename],
+                evidenceText=annexes[real_annex_key],
                 mainFormText=mainFormText
             ))
         return tasks
 
-    financialTasks = prepare_tasks_for_specialist(financial_reqs)
-    technicalTasks = prepare_tasks_for_specialist(technical_reqs)
-    legalTasks = prepare_tasks_for_specialist(legal_reqs)
+    financialTasks = prepare_tasks_for_specialist(masterChecklist.financialRequirements)
+    technicalTasks = prepare_tasks_for_specialist(masterChecklist.technicalRequirements)
+    legalTasks = prepare_tasks_for_specialist(masterChecklist.legalRequirements)
 
     print(f"--- 📬 Router prepared {len(technicalTasks)} technical, {len(financialTasks)} financial, {len(legalTasks)} legal tasks. ---")
     
@@ -95,8 +109,6 @@ async def projectManagerRouterNode(state: ProposalAuditState) -> Dict[str, Any]:
         "financialTasks": financialTasks,
         "legalTasks": legalTasks,
     }
-
-
 
 async def financialSpecialistNode(state: ProposalAuditState) -> Dict[str, Any]:
     """
@@ -151,7 +163,7 @@ async def financialSpecialistNode(state: ProposalAuditState) -> Dict[str, Any]:
                 "requirementName": task.requirementToVerify.name,
                 "isCompliant": False,
                 "isConsistent": False,
-                "severity": "HIGH",
+                "severity": "CRITICAL",
                 "observation": f"An error occurred during AI analysis: {e}",
                 "recommendation": "Manual review required due to system error.",
                 "agentSource": "Financial"
@@ -159,12 +171,9 @@ async def financialSpecialistNode(state: ProposalAuditState) -> Dict[str, Any]:
             new_findings.append(error_finding)
 
     print(f"--- ✅ financialSpecialistNode generated {len(new_findings)} new findings. ---")
-
-    current_findings = state.get("findings", [])
-    updated_findings = current_findings + new_findings
     
-    return {"findings": updated_findings}
-
+    # This return structure is designed for LangGraph's state update mechanism
+    return {"findings": new_findings}
 
 
 async def technicalSpecialistNode(state: ProposalAuditState) -> Dict[str, Any]:
@@ -219,7 +228,7 @@ async def technicalSpecialistNode(state: ProposalAuditState) -> Dict[str, Any]:
                 "requirementName": task.requirementToVerify.name,
                 "isCompliant": False,
                 "isConsistent": False,
-                "severity": "HIGH",
+                "severity": "CRITICAL",
                 "observation": f"An error occurred during AI analysis: {e}",
                 "recommendation": "Manual review required due to system error.",
                 "agentSource": "Technical"
@@ -228,11 +237,7 @@ async def technicalSpecialistNode(state: ProposalAuditState) -> Dict[str, Any]:
 
     print(f"--- ✅ technicalSpecialistNode generated {len(new_findings)} new findings. ---")
 
-    current_findings = state.get("findings", [])
-    updated_findings = current_findings + new_findings
-    
-    return {"findings": updated_findings}
-
+    return {"findings": new_findings}
 
 
 async def legalSpecialistNode(state: ProposalAuditState) -> Dict[str, Any]:
@@ -287,7 +292,7 @@ async def legalSpecialistNode(state: ProposalAuditState) -> Dict[str, Any]:
                 "requirementName": task.requirementToVerify.name,
                 "isCompliant": False,
                 "isConsistent": False,
-                "severity": "HIGH",
+                "severity": "CRITICAL",
                 "observation": f"An error occurred during AI analysis: {e}",
                 "recommendation": "Manual review required due to system error.",
                 "agentSource": "Legal"
@@ -296,17 +301,13 @@ async def legalSpecialistNode(state: ProposalAuditState) -> Dict[str, Any]:
 
     print(f"--- ✅ legalSpecialistNode generated {len(new_findings)} new findings. ---")
 
-    current_findings = state.get("findings", [])
-    updated_findings = current_findings + new_findings
-    
-    return {"findings": updated_findings}
-
+    return {"findings": new_findings}
 
 
 def compileProposalReportNode(state: ProposalAuditState) -> Dict[str, Any]:
     """
     Final node in the sub-graph. Compiles all findings and calculates the
-    final scores using the new OK, WARNING, CRITICAL severity system.
+    final scores using the OK, WARNING, CRITICAL severity system.
     """
     proposal = state.get("proposal", {})
     companyName = proposal.get("companyName", "Unknown name")
