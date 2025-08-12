@@ -1,29 +1,41 @@
-"""Services package for AI Service API"""
+# services/__init__.py
+"""
+Services package for the AI Service API.
+...
+"""
 
-from .file_service import (
-    generate_unique_filename,
-    create_temp_filepath,
-    save_uploaded_file,
-    save_file_structure
+from .tender_service import (
+    upload_new_tender,
+    upload_tender_with_id,
+    upload_proposal,
+    get_tender_contractors,
+    get_all_tenders_and_contractors,
+    get_contractors_for_batch,
+    generate_full_tender_json,
+    process_uploaded_pdf_or_zip,
+    get_proposal_details,  
 )
 
-from .pdf_service import (
-    extract_text_from_pdf,
-    process_pdf_zip_files,
-    extract_document_information,
-    llm_text_detection
+from .sse_service import (
+    save_sse_data,
+    stream_sse_data,
+    get_executive_summary_if_completed,
 )
 
 __all__ = [
-    # File services
-    "generate_unique_filename",
-    "create_temp_filepath", 
-    "save_uploaded_file",
-    "save_file_structure",
-    
-    # PDF services
-    "extract_text_from_pdf",
-    "process_pdf_zip_files", 
-    "extract_document_information",
-    "llm_text_detection"
+    # Tender and Proposal Services
+    "upload_new_tender",
+    "upload_tender_with_id",
+    "upload_proposal",
+    "get_tender_contractors",
+    "get_all_tenders_and_contractors",
+    "get_contractors_for_batch",
+    "generate_full_tender_json",
+    "process_uploaded_pdf_or_zip",
+    "get_proposal_details",  
+
+    # Server-Sent Events (SSE) Services
+    "save_sse_data",
+    "stream_sse_data",
+    "get_executive_summary_if_completed",
 ]

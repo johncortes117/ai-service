@@ -103,14 +103,12 @@ def extraer_texto_de_pdf(pdf_path: str) -> str:
     """
     texto = ""
     try:
-        # Abrir el documento PDF
         doc = fitz.open(pdf_path)
 
         for pagina_num in range(len(doc)):
             pagina = doc.load_page(pagina_num)
             texto += pagina.get_text()
         
-        # Cerrar el documento
         doc.close()
         
     except Exception as e:
@@ -123,11 +121,3 @@ def extraer_texto_de_pdf(pdf_path: str) -> str:
         return texto
 
 #----------------------------------------------------------------------------------------------------------------------------------
-def llm_texto_detection(pdf_path: str) -> str:
-    """
-    Función placeholder para detección de texto con LLM/OCR
-    cuando el PDF no tiene texto extraíble (ej: imágenes escaneadas)
-    """
-    # TODO: Implementar detección de texto con OCR o LLM
-    # Por ahora retorna un mensaje indicativo
-    return f"[PDF sin texto extraíble detectado: {os.path.basename(pdf_path)}. OCR pendiente de implementar]"

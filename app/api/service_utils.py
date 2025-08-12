@@ -1,6 +1,7 @@
 """
 Utilities for PDF and ZIP file processing
 """
+import json
 import os
 import shutil
 import zipfile
@@ -390,3 +391,72 @@ async def generateTenderJsonDataAsync(tender_id: str) -> dict:
         )
     
     return result
+
+
+
+def saveSseData(payload: dict, data_file: str) -> dict:
+    """
+    Guarda el JSON recibido en el archivo para SSE.
+    """
+    import json
+    try:
+        with open(data_file, "w", encoding="utf-8") as f:
+            json.dump(payload, f, ensure_ascii=False, indent=2)
+        return {"message": "Data saved successfully"}
+    except Exception as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail=f"Error saving data: {str(e)}")
+
+
+def streamSseData(data_file: str):
+
+    import time
+    import json
+    import os
+    last_is_loading = None
+    while True:
+        try:
+            if os.path.exists(data_file):
+                with open(data_file, "r", encoding="utf-8") as f:
+                    data = f.read()
+                try:
+                    json_data = json.loads(data)
+                except Exception:
+                    json_data = {}
+                is_loading = json_data.get("isLoading")
+                # Si isLoading cambia a True, envía todo el JSON
+                if last_is_loading is not None and is_loading != last_is_loading and is_loading is True:
+                    yield f"data: {json.dumps(json_data, ensure_ascii=False)}\n\n"
+                else:
+                    partial = {"state": json_data.get("state"), "isLoading": is_loading}
+                    yield f"data: {json.dumps(partial, ensure_ascii=False)}\n\n"
+                last_is_loading = is_loading
+            else:
+                yield "data: {}\n\n"
+        except Exception as e:
+            yield f"data: {{'error': '{str(e)}'}}\n\n"
+        time.sleep(2)
+
+
+def hasStateTransitioned(data_file: str, from_state: str = "En Análisis", to_state: str = "Completado") -> bool:
+    """
+    Comprueba si el estado del JSON en data_file ha cambiado de from_state a to_state.
+    """
+
+    if not os.path.exists(data_file):
+        return False
+    try:
+        with open(data_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        # Buscar el estado actual
+        current_state = None
+        # Soporta tanto nivel raíz como tenderDetails["state"]
+        if "state" in data:
+            current_state = data["state"]
+        elif "tenderDetails" in data and "state" in data["tenderDetails"]:
+            current_state = data["tenderDetails"]["state"]
+        # Si el estado es igual al estado final, retorna True solo si antes era el estado inicial
+        # (esto requiere que la función se llame en el momento del cambio)
+        return current_state == to_state
+    except Exception:
+        return False

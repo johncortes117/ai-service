@@ -1,32 +1,13 @@
-def getAllTendersContractors() -> dict:
-    """Get contractors and companies for all tenders found in data/proposals"""
-    result = {}
-    proposals_base = Path("./data/proposals")
-    if not proposals_base.exists():
-        return result
-    for tender_dir in proposals_base.iterdir():
-        if tender_dir.is_dir() and tender_dir.name.startswith("tender_"):
-            tender_id = tender_dir.name.replace("tender_", "")
-            contractors = getContractorsByTender(tender_id)
-            result[tender_id] = contractors
-    return result
-def getContractorsBatch(tender_ids: list) -> dict:
-    """Get contractors and companies for a batch of tenders"""
-    result = {}
-    for tender_id in tender_ids:
-        contractors = getContractorsByTender(tender_id)
-        result[tender_id] = contractors
-    return result
-"""
-Utility functions for the API
-"""
+
 import os
 import uuid
 from pathlib import Path
 from fastapi import UploadFile, HTTPException
 from ..services import process_pdf_zip_files as _process_pdf_zip_files
 
-
+"""
+Utility functions for the API
+"""
 async def processPdfZipFiles(file: UploadFile):
     """Process PDF or ZIP files containing PDFs"""
     return await _process_pdf_zip_files(file)
@@ -156,3 +137,26 @@ def getContractorsByTender(tender_id: str) -> list:
         print(f"Error getting contractors for tender {tender_id}: {e}")
     
     return contractors
+
+
+def getAllTendersContractors() -> dict:
+    """Get contractors and companies for all tenders found in data/proposals"""
+    result = {}
+    proposals_base = Path("./data/proposals")
+    tender_count = 0
+    if not proposals_base.exists():
+        return {"totalTenders": 0, "tenders": {}}
+    for tender_dir in proposals_base.iterdir():
+        if tender_dir.is_dir() and tender_dir.name.startswith("tender_"):
+            tender_id = tender_dir.name.replace("tender_", "")
+            contractors = getContractorsByTender(tender_id)
+            result[tender_id] = contractors
+            tender_count += 1
+    return {"totalTenders": tender_count, "tenders": result}
+def getContractorsBatch(tender_ids: list) -> dict:
+    """Get contractors and companies for a batch of tenders"""
+    result = {}
+    for tender_id in tender_ids:
+        contractors = getContractorsByTender(tender_id)
+        result[tender_id] = contractors
+    return result

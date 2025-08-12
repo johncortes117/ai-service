@@ -1,259 +1,204 @@
-import uuid
-import os
-from typing import List, Optional, Dict, Any
-from fastapi import FastAPI, UploadFile, File, HTTPException, status, Depends, Body
+# main.py
+from typing import List, Dict, Any
+from fastapi import FastAPI, UploadFile, File, HTTPException, status, Body
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from fastapi.responses import StreamingResponse
+import traceback
 
-# Import configuration
-from app.core.config import CORS_ORIGINS, MAX_FILE_SIZE, ALLOWED_FILE_EXTENSIONS
+# Import services, schemas and constants
+from app.api import services
+from app.api import schemas
+from app.core import constants
 
-# Import utility functions properly
-from app.api import utils as utils_module
-# Import schemas - commented temporarily to fix server startup
-# from app.api.schemas import (
-#     ProposalUploadResponse, 
-#     ErrorResponse, 
-#     TenderUploadResponse, 
-#     TenderJsonResponse
-# )
-
-# FastAPI app definition
+# Initialize FastAPI app
 app = FastAPI(
-    title="AI Service API",
-    description="API for AI services including blueprint creation and document processing",
-    version="0.1.0",
+    title=constants.PROJECT_NAME,
+    description=constants.DESCRIPTION,
+    version=constants.VERSION,
     docs_url="/docs",
     redoc_url="/redoc"
 )
 
-# Add CORS middleware for Next.js frontend integration
+# Add CORS middleware (assuming CORS_ORIGINS is defined in a config file)
+# from app.core.config import CORS_ORIGINS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS,  # Configured in core/config.py
+    allow_origins=["*"],  # Replace with CORS_ORIGINS for production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Batch contractors endpoint
-@app.post("/tenders/contractors_batch")
-async def get_contractors_batch(tender_ids: List[str] = Body(..., embed=True)):
-    """
-    Get contractors and companies for a batch of tenders.
-    Receives: { "tender_ids": ["1", "2", ...] }
-    Returns: { "tender_id": [ {contractorId, companies, totalCompanies}, ... ], ... }
-    """
+# Ensure necessary directories exist on startup
+@app.on_event("startup")
+def on_startup():
+    constants.create_directories()
+
+# --- System Endpoints ---
+
+@app.get("/health", summary="Health Check", tags=["System"])
+def health_check() -> Dict[str, str]:
+    return {"status": "healthy"}
+
+# --- Tender Endpoints ---
+
+@app.post("/tenders/upload", response_model=schemas.TenderUploadResponse, tags=["Tenders"])
+async def upload_tender_sequential(file: UploadFile = File(...)):
+    """Uploads a tender PDF, assigning the next available sequential ID."""
     try:
-        batch_result = utils_module.getContractorsBatch(tender_ids)
+        return await services.upload_new_tender(file)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error uploading tender: {e}")
+
+@app.post("/tenders/upload/{tender_id}", response_model=schemas.TenderUploadResponse, tags=["Tenders"])
+async def upload_tender_by_id(tender_id: str, file: UploadFile = File(...)):
+    """Uploads a tender PDF for a specific ID."""
+    try:
+        return await services.upload_tender_with_id(tender_id, file)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error uploading tender with ID {tender_id}: {e}")
+
+@app.get("/tenders/contractors_all", tags=["Tenders"])
+async def get_all_contractors():
+    """Retrieves all tenders and a list of their associated contractors."""
+    try:
+        return services.get_all_tenders_and_contractors()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error retrieving all contractors: {e}")
+
+@app.post("/tenders/contractors_batch", tags=["Tenders"])
+async def get_contractors_batch(tender_ids: List[str] = Body(..., embed=True)):
+    """Retrieves contractors for a specific list of tender IDs."""
+    try:
+        results = services.get_contractors_for_batch(tender_ids['tender_ids'])
         return {
             "message": "Batch contractors retrieved successfully",
-            "requested_tenders": tender_ids,
-            "results": batch_result
+            "requested_tenders": tender_ids['tender_ids'],
+            "results": results
         }
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error retrieving batch contractors: {str(e)}"
-        )
-
-# Health check endpoint
-@app.get(
-    "/health", 
-    summary="Health Check",
-    description="Check if the API is running properly",
-    response_model=Dict[str, str],
-    tags=["System"]
-)
-async def health_check():
-    """Health check endpoint for monitoring"""
-    return {"status": "healthy", "message": "AI Service API is running!"}
-
-
-@app.post("/process_and_structure_pdfs")
-async def processAndStructurePdfs(file: UploadFile = File(...)):
-    """
-    Process PDF files or ZIP files containing PDFs
-    """
+        raise HTTPException(status_code=500, detail=f"Error retrieving batch contractors: {e}")
+        
+@app.get("/tenders/{tender_id}/contractors", tags=["Tenders"])
+async def get_contractors_for_tender(tender_id: str):
+    """Retrieves all contractors for a single tender."""
     try:
-        result = await utils_module.processPdfZipFiles(file)
-        return {
-            "message": "Files processed successfully",
-            **result
-        }
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
-
-
-@app.post(
-    "/proposals/upload_differentiated/{tender_id}/{contractor_id}/{company_name}",
-    # response_model=ProposalUploadResponse,
-    status_code=status.HTTP_201_CREATED,
-    summary="Upload Proposal Files",
-    description="Upload and organize proposal files with hierarchical structure",
-    responses={
-        201: {"description": "Files uploaded successfully"},
-        400: {"description": "Invalid input data"},
-        413: {"description": "File too large"},
-        500: {"description": "Internal server error"}
-    },
-    tags=["Proposals"]
-)
-async def upload_differentiated_files(
-    tender_id: str,
-    contractor_id: str,
-    company_name: str,
-    principal_file: UploadFile = File(..., description="Main proposal file (PDF recommended)"),
-    attachment_files: List[UploadFile] = File(default=[], description="List of attachment files")
-) -> Dict[str, Any]:
-    """
-    Upload and organize proposal files with hierarchical structure.
-    
-    Creates directory: data/proposals/tender_{tender_id}/contractor_{contractor_id}/{company_name}/
-    """
-    try:
-        # Create directory structure using utility function
-        proposal_dir = utils_module.createProposalStructure(tender_id, contractor_id, company_name)
-        
-        # Save principal file
-        principal_filename = await utils_module.saveFileWithUuid(principal_file, proposal_dir, "PRINCIPAL")
-        
-        # Save attachment files
-        saved_attachments = []
-        for attachment_file in attachment_files:
-            attachment_filename = await utils_module.saveAttachmentWithOriginalName(attachment_file, proposal_dir)
-            saved_attachments.append(attachment_filename)
-
-        return {
-            "message": "Files received and classified correctly.",
-            "tender_id": tender_id,
-            "contractor_id": contractor_id,
-            "company_name": company_name,
-            "principal_file": principal_filename,
-            "attachment_files": saved_attachments,
-            "total_attachments": len(saved_attachments),
-            "directory": proposal_dir
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error processing files: {str(e)}"
-        )
-
-
-@app.post("/tenders/upload")
-async def uploadTenderPdf(file: UploadFile = File(...)):
-    """
-    Upload a tender PDF file. Creates sequential tender IDs (1, 2, 3...)
-    """
-    try:
-        tenderId = utils_module.getNextTenderId()
-        
-        if utils_module.checkTenderExists(tenderId):
-            return {
-                "message": "Tender already exists, no new files created.",
-                "tender_id": tenderId,
-                "status": "exists",
-                "directory": f"./data/tenders/tender_{tenderId}"
-            }
-        
-        filename = await utils_module.saveTenderPdf(file, tenderId)
-        
-        return {
-            "message": "Tender PDF uploaded successfully.",
-            "tender_id": tenderId,
-            "filename": filename,
-            "status": "created",
-            "directory": f"./data/tenders/tender_{tenderId}"
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing tender PDF: {str(e)}")
-
-
-@app.post("/tenders/upload/{tender_id}")
-async def uploadTenderPdfWithId(tender_id: str, file: UploadFile = File(...)):
-    """
-    Upload a tender PDF file with specific tender ID.
-    """
-    try:
-        if utils_module.checkTenderExists(tender_id):
-            return {
-                "message": "Tender already exists, no new files created.",
-                "tender_id": tender_id,
-                "status": "exists",
-                "directory": f"./data/tenders/tender_{tender_id}"
-            }
-        
-        filename = await utils_module.saveTenderPdf(file, tender_id)
-        
-        return {
-            "message": "Tender PDF uploaded successfully.",
-            "tender_id": tender_id,
-            "filename": filename,
-            "status": "created",
-            "directory": f"./data/tenders/tender_{tender_id}"
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing tender PDF: {str(e)}")
-
-
-@app.get("/tenders/{tender_id}/generate_json")
-async def generateTenderJson(tender_id: str):
-    """
-    Generate complete JSON data for a tender including all proposals
-    """
-    try:
-        json_data = await utils_module.generateTenderJsonDataAsync(tender_id)
-        
-        if not json_data["tenderText"] and not json_data["proposals"]:
-            raise HTTPException(
-                status_code=404, 
-                detail=f"No tender or proposal data found for tender_id: {tender_id}"
-            )
-        
-        return {
-            "message": "Tender JSON data generated successfully",
-            "tender_id": tender_id,
-            "total_proposals": len(json_data["proposals"]),
-            "data": json_data
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"Error generating tender JSON: {str(e)}")
-
-
-@app.get("/tenders/{tender_id}/contractors")
-async def getContractors(tender_id: str):
-    """
-    Get list of contractors for a specific tender
-    """
-    try:
-        contractors = utils_module.getContractorsByTender(tender_id)
-        
+        contractors = services.get_tender_contractors(tender_id)
         return {
             "message": "Contractors retrieved successfully",
             "tender_id": tender_id,
             "total_contractors": len(contractors),
             "contractors": contractors
         }
-        
     except Exception as e:
-        raise HTTPException(
-            status_code=500, 
-            detail=f"Error retrieving contractors for tender {tender_id}: {str(e)}"
+        raise HTTPException(status_code=500, detail=f"Error retrieving contractors for tender {tender_id}: {e}")
+    
+@app.get("/tenders/{tender_id}", tags=["Tenders"])
+async def get_tender_details(tender_id: str):
+    """
+    Gets the details of a tender, including its file and a list of its applications (proposals).
+    """
+    try:
+        # Reutilizamos la lógica para obtener los contratistas (aplicaciones)
+        applications = services.get_tender_contractors(tender_id)
+        
+        tender_file = f"TENDER_{tender_id}.pdf"
+        tender_path = constants.TENDERS_DIR / f"tender_{tender_id}" / tender_file
+        
+        if not tender_path.exists() and not applications:
+            raise HTTPException(status_code=404, detail=f"Tender with ID {tender_id} not found.")
+
+        return {
+            "tenderId": tender_id,
+            "tenderFile": tender_file if tender_path.exists() else "File not found",
+            "totalApplications": len(applications),
+            "applications": applications # Lista de propuestas/contratistas
+        }
+    except Exception as e:
+        # Evita propagar la excepción de HTTPException para personalizar el mensaje
+        if isinstance(e, HTTPException):
+            raise
+        raise HTTPException(status_code=500, detail=f"Error retrieving details for tender {tender_id}: {e}")
+
+
+@app.get("/tenders/{tender_id}/applications/{proposal_id}", tags=["Tenders"])
+async def get_application_details(tender_id: str, proposal_id: str):
+    """
+    Gets the details of a specific application (proposal) within a tender.
+    The proposal_id is the company name.
+    """
+    try:
+        # Llamamos a la nueva función del servicio
+        details = services.get_proposal_details(tender_id, proposal_id)
+        return details
+    except Exception as e:
+        if isinstance(e, HTTPException):
+            raise
+        raise HTTPException(status_code=500, detail=f"Error retrieving application {proposal_id}: {e}")
+
+# --- Proposal Endpoints ---
+
+@app.post("/proposals/upload/{tender_id}/{contractor_id}/{company_name}", response_model=schemas.ProposalUploadResponse, status_code=status.HTTP_201_CREATED, tags=["Proposals"])
+async def upload_proposal_files(
+    tender_id: str, contractor_id: str, company_name: str,
+    principal_file: UploadFile = File(..., description="Main proposal PDF file"),
+    attachment_files: List[UploadFile] = File(default=[], description="List of attachment files")
+):
+    """Uploads and organizes proposal files into a structured directory."""
+    try:
+        result = await services.upload_proposal(
+            tender_id, contractor_id, company_name, principal_file, attachment_files
         )
+        return {**result, "tender_id": tender_id, "contractor_id": contractor_id, "company_name": company_name}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing proposal files: {e}")
+
+# --- Processing and Data Generation Endpoints ---
+
+@app.post("/process_files", tags=["Processing"])
+async def process_pdf_or_zip(file: UploadFile = File(...)):
+    """Processes a single PDF or a ZIP file containing multiple PDFs, extracting their text."""
+    try:
+        result = await services.process_uploaded_pdf_or_zip(file)
+        return {
+            "message": "Files processed successfully",
+            **result
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing file: {e}")
+
+@app.get("/tenders/{tender_id}/generate_json", response_model=schemas.TenderJsonResponse, tags=["Processing"])
+async def generate_tender_json(tender_id: str):
+    """Generates a single, consolidated JSON object with all text from the tender and its proposals."""
+    try:
+        json_data_from_service = await services.generate_full_tender_json(tender_id)
+        
+        if not json_data_from_service["tenderText"] and not json_data_from_service["proposals"]:
+            raise HTTPException(status_code=404, detail=f"No data found for tender_id: {tender_id}")
+        
+        return {
+            "message": "Tender JSON data generated successfully",
+            "tender_id": tender_id,
+            "total_proposals": len(json_data_from_service["proposals"]),
+            "data": json_data_from_service
+        }
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Error generating tender JSON: {e}")
+
+# --- Server-Sent Events (SSE) Endpoints ---
+
+@app.post("/sse/data", tags=["SSE"])
+async def post_sse_data(payload: Dict[str, Any]):
+    """Receives and saves data to be broadcast via SSE."""
+    return services.save_sse_data(payload)
+
+@app.get("/sse/stream", tags=["SSE"])
+async def stream_sse_endpoint():
+    """Endpoint for clients to connect and receive SSE updates."""
+    return StreamingResponse(services.stream_sse_data(), media_type="text/event-stream")
+
+@app.get("/sse/executive_summary", tags=["SSE"])
+async def get_summary():
+    """Checks if the analysis is complete and returns the executive summary if available."""
+    return services.get_executive_summary_if_completed()
