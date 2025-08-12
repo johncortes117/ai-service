@@ -1,9 +1,9 @@
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import BaseMessage
 from pydantic import BaseModel
-from typing import List, Type, Dict, Any
+from typing import List, Type
 
-from ..core.config import OPENAI_API_KEY
+from ...core.config import OPENAI_API_KEY
 
 class LLMService:
     """
@@ -92,4 +92,4 @@ class LLMService:
 
 # --- Instancia Única de Servicio (Patrón Singleton) ---
 # Se crea una sola instancia que se importará en todos los demás archivos.
-llm_service = LLMService()
+llmService = LLMService()
