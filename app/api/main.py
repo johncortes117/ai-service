@@ -1,4 +1,5 @@
 # main.py
+import json
 from typing import List, Dict, Any
 from fastapi import FastAPI, UploadFile, File, HTTPException, status, Body
 from fastapi.middleware.cors import CORSMiddleware
@@ -221,3 +222,37 @@ async def trigger_tender_analysis(tender_id: str):
         if isinstance(e, HTTPException):
             raise
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
+    
+@app.get("/get-analysis-report", tags=["Processing"])
+async def get_latest_analysis_report():
+    """
+    La forma más sencilla de obtener el reporte:
+    Lee el archivo 'sse_data.json' y devuelve su contenido como un objeto JSON.
+    """
+    # Usamos la ruta absoluta desde las constantes, que es mucho más fiable
+    report_path = constants.SSE_DATA_FILE
+
+    # Verificamos si el archivo existe
+    if not report_path.is_file():
+        raise HTTPException(
+            status_code=404, 
+            detail="El reporte de análisis no ha sido generado todavía o no se encuentra."
+        )
+
+    try:
+        # Abrimos el archivo y leemos su contenido
+        with open(report_path, "r", encoding="utf-8") as f:
+            # json.load() convierte la cadena de texto JSON del archivo
+            # en un diccionario de Python.
+            report_data = json.load(f)
+        
+        # Retornamos el diccionario. FastAPI lo convertirá automáticamente
+        # en una respuesta JSON con el Content-Type correcto.
+        return report_data
+        
+    except json.JSONDecodeError:
+        # Si el archivo está corrupto o no es un JSON válido
+        raise HTTPException(status_code=500, detail="Error al procesar el archivo del reporte. El formato JSON es inválido.")
+    except Exception as e:
+        # Para cualquier otro error inesperado al leer el archivo
+        raise HTTPException(status_code=500, detail=f"No se pudo leer el reporte de análisis: {e}")
