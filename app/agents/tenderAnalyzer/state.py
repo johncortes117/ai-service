@@ -1,6 +1,4 @@
-from typing import TypedDict, List, Dict, Any, Optional
-
-# Importarás tus schemas Pydantic aquí
+from typing import TypedDict, List, Dict, Any, Optional, Annotated
 from .schemas.masterChecklist import MasterChecklist
 
 class TenderAnalysisState(TypedDict):
@@ -18,7 +16,31 @@ class TenderAnalysisState(TypedDict):
     masterChecklist: Optional[MasterChecklist]
     # The list of detailed analysis results for each proposal
     analysisResults: Optional[List[Dict[str, Any]]]
-    
+    subgraphInputs: Optional[List[Dict[str, Any]]]
+    individualReports: Optional[List[Dict[str, Any]]]
+
     # --- Final Output ---
     # The final, clean JSON object for the frontend
     finalReport: Optional[Dict[str, Any]]
+
+
+class ProposalAuditState(TypedDict):
+    """
+    Represents the state for auditing a SINGLE proposal.
+    """
+    # --- Input Data ---
+    proposal: Dict[str, Any]
+    masterChecklist: MasterChecklist
+
+    # --- Task lists prepared by the router ---
+    technicalTasks: Optional[List[Dict[str, Any]]]
+    financialTasks: Optional[List[Dict[str, Any]]]
+    legalTasks: Optional[List[Dict[str, Any]]]
+    
+    # --- Intermediate results from specialists ---
+    # all specialists accumulate their findings.
+    findings: Annotated[List[Dict[str, Any]], lambda a, b: a + b]
+
+    # --- Final Output of this audit ---
+    scores: Optional[Dict[str, int]]
+    finalAnalysis: Optional[Dict[str, Any]]
