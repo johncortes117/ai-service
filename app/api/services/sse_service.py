@@ -1,6 +1,9 @@
 # services/sse_service.py
 import json
 import time
+from typing import Dict, Any
+from fastapi import HTTPException
+from app.core import constants
 from typing import Dict, Any, AsyncGenerator
 from fastapi import HTTPException
 
@@ -9,11 +12,14 @@ from app.core import constants
 def save_sse_data(payload: Dict[str, Any]) -> Dict[str, str]:
     """Saves the received JSON to the SSE data file."""
     try:
+
         with open(constants.SSE_DATA_FILE, "w", encoding="utf-8") as f:
             json.dump(payload, f, ensure_ascii=False, indent=2)
+
         return {"message": "Data saved successfully for SSE streaming."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error saving SSE data: {e}")
+
 
 async def stream_sse_data() -> AsyncGenerator[str, None]:
     """Streams data from the JSON file as Server-Sent Events."""
