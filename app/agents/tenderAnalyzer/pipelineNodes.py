@@ -111,56 +111,55 @@ async def aggregateResultsNode(state: TenderAnalysisState) -> Dict[str, Any]:
     
     summary_context = ""
     for report in individual_reports:
-        # Use .get() for safe access to nested dictionaries
         analysis = report.get("finalAnalysis", {})
         bidder = analysis.get("bidderName", "Unknown")
-        score = analysis.get("scores", {}).get("viabilityTotal", 0)
+        # Asegúrate que la clave aquí sea la correcta, en nuestro último nodo era 'viabilityTotal'
+        score = analysis.get("scores", {}).get("viabilityTotal", 0) 
         
-        # --- THE FIX: Change "description" to "observation" to match your Finding schemas ---
-        high_findings = [
+        # --- THE FIX: Look for "CRITICAL" severity, not "HIGH" ---
+        critical_findings = [
             f.get("observation", "No details provided.") 
-            for f in analysis.get("findings", []) if f.get("severity") == "HIGH"
+            for f in analysis.get("findings", []) if f.get("severity") == "CRITICAL"
         ]
         
         summary_context += f"Proposal from: {bidder}\n"
         summary_context += f"Viability Score: {score}/100\n"
-        if high_findings:
-            summary_context += f"Critical Risks Found: {'; '.join(high_findings)}\n"
+        if critical_findings:
+            summary_context += f"Critical Risks Found: {'; '.join(critical_findings)}\n"
         summary_context += "---\n"
 
-    messages = [
-        SystemMessage(content=AGGREGATE_ANALYSIS_PROMPT),
-        HumanMessage(content=summary_context)
-    ]
-    
-    summary_response = await llmService.invoke_json(
-        messages=messages,
-        output_schema=ExecutiveSummary,
-        model_name="gpt-4o-mini",
-        temperature=0.2
-    )
-    executive_summary = summary_response.get("summary", "No summary could be generated.")
+    executive_summary = "No summary could be generated." # Valor por defecto
+
+    try:
+        messages = [
+            SystemMessage(content=AGGREGATE_ANALYSIS_PROMPT),
+            HumanMessage(content=summary_context)
+        ]
+        
+        summary_response = await llmService.invoke_json(
+            messages=messages,
+            output_schema=ExecutiveSummary,
+            model_name="gpt-4o-mini",
+            temperature=0.2
+        )
+        print(summary_response)
+        executive_summary = summary_response.get("summary", "")
+
+    except Exception as e:
+        print(f"--- ❌ ERROR during executive summary LLM call: {e} ---")
 
     # --- 2. Build Budget Comparison Object (Data Processing) ---
     
-    # This section remains a placeholder with mock data for the hackathon demo,
-    # ensuring the UI graph always has something to display.
-    budget_categories = []
-    budget_proposals = []
-
-    if not budget_proposals:
-        budget_categories = ["Design", "Development", "Testing", "Deployment"]
-        budget_proposals = [
-            {"bidderName": report.get("finalAnalysis", {}).get("bidderName", "Unknown"), "valuesUSD": [10, 50, 20, 20]}
-            for report in individual_reports
-        ]
-
+    budget_categories = ["Design", "Development", "Testing", "Deployment"]
+    budget_proposals = [
+        {"bidderName": report.get("finalAnalysis", {}).get("bidderName", "Unknown"), "valuesUSD": [10, 50, 20, 20]}
+        for report in individual_reports
+    ]
     budget_comparison = {
         "categories": budget_categories,
         "proposals": budget_proposals
     }
     
-    # This prepares the list of final analysis objects for the next node
     analysis_list = [
         report.get("finalAnalysis") 
         for report in individual_reports 

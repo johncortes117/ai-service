@@ -19,6 +19,8 @@ class TenderAnalysisState(TypedDict):
     subgraphInputs: Optional[List[Dict[str, Any]]]
     individualReports: Optional[List[Dict[str, Any]]]
 
+    executiveSummary: Optional[str]
+
     # --- Final Output ---
     # The final, clean JSON object for the frontend
     finalReport: Optional[Dict[str, Any]]
