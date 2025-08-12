@@ -2,6 +2,7 @@ import os
 import shutil
 import zipfile
 import uuid
+import re
 import asyncio
 import concurrent.futures
 from typing import List, Dict, Any
@@ -66,6 +67,22 @@ async def upload_proposal(
         "attachment_files": saved_attachments, "total_attachments": len(saved_attachments)
     }
 
+
+#---------
+def clean_pdf_text(text: str) -> str:
+    """
+    Limpia el texto extraído de un PDF para hacerlo más legible para el LLM.
+    Elimina saltos de línea excesivos, espacios múltiples y líneas cortas que son artefactos.
+    """
+    # Une palabras cortadas por saltos de línea
+    text = re.sub(r'-\n', '', text)
+    # Reemplaza múltiples saltos de línea por uno solo para separar párrafos
+    text = re.sub(r'\n\s*\n', '\n\n', text)
+    # Elimina saltos de línea dentro de las frases para crear párrafos fluidos
+    text = re.sub(r'(?<!\n)\n(?!\n)', ' ', text)
+    # Reemplaza múltiples espacios con un solo espacio
+    text = re.sub(r' +', ' ', text)
+    return text.strip()
 # --- Data Retrieval and Generation ---
 
 def get_tender_contractors(tender_id: str) -> List[Dict[str, Any]]:
@@ -100,19 +117,33 @@ def get_contractors_for_batch(tender_ids: List[str]) -> Dict[str, Any]:
     return {tender_id: get_tender_contractors(tender_id) for tender_id in tender_ids}
 
 def _generate_tender_json_data_sync(tender_id: str) -> Dict[str, Any]:
-    """The synchronous core logic for generating the tender JSON, matching the schema."""
+    """
+    El núcleo síncrono para generar el JSON, ahora con limpieza de texto.
+    """
     result = {"tenderName": f"TENDER_{tender_id}", "tenderText": "", "proposals": []}
 
     tender_dir = constants.TENDERS_DIR / f"tender_{tender_id}"
     try:
-        tender_pdf = next(tender_dir.glob("TENDER_*.pdf"))
-        result["tenderText"] = pdf_service.extract_text_from_pdf(str(tender_pdf))
-        result["tenderName"] = tender_pdf.stem
-    except (StopIteration, Exception) as e:
-        result["tenderText"] = f"Tender PDF not found or failed to process: {e}"
+        tender_pdf_path = next(tender_dir.glob(f"TENDER_{tender_id}.pdf"))
+        print(f"--- Found tender PDF: {tender_pdf_path} ---")
+        
+        raw_text = pdf_service.extract_text_from_pdf(str(tender_pdf_path))
+        
+        # --- ESTA ES LA CORRECCIÓN CLAVE ---
+        result["tenderText"] = clean_pdf_text(raw_text)
+        
+        result["tenderName"] = tender_pdf_path.stem
+    except FileNotFoundError as e:
+        print(f"--- TENDER PARSING ERROR: {e} ---")
+        result["tenderText"] = f"TENDER_FILE_NOT_FOUND: {e}"
+    except Exception as e:
+        print(f"--- TENDER PARSING ERROR: {e} ---")
+        result["tenderText"] = f"TENDER_PROCESSING_ERROR: {e}"
 
+    # El procesamiento de propuestas no necesita cambios
     proposals_dir = constants.PROPOSALS_DIR / f"tender_{tender_id}"
-    if not proposals_dir.exists(): return result
+    if not proposals_dir.exists():
+        return result
 
     for contractor_dir in proposals_dir.glob("contractor_*"):
         contractor_id = contractor_dir.name.replace("contractor_", "")
@@ -124,15 +155,19 @@ def _generate_tender_json_data_sync(tender_id: str) -> Dict[str, Any]:
                 }
                 try:
                     p_file = next(company_dir.glob(f"{constants.PREFIX_PRINCIPAL}_*.pdf"))
-                    proposal_data["principalText"] = pdf_service.extract_text_from_pdf(str(p_file))
+                    # También limpiamos el texto de la propuesta principal
+                    proposal_data["principalText"] = clean_pdf_text(pdf_service.extract_text_from_pdf(str(p_file)))
                     proposal_data["lastPageText"] = pdf_service.extract_last_page_from_pdf(str(p_file))
                 except StopIteration: pass
                 
                 for a_file in company_dir.glob(f"{constants.PREFIX_ATTACHMENTS}_*.pdf"):
-                    proposal_data["attachments"][a_file.name] = pdf_service.extract_text_from_pdf(str(a_file))
+                    # Y el de los anexos
+                    proposal_data["attachments"][a_file.name] = clean_pdf_text(pdf_service.extract_text_from_pdf(str(a_file)))
                 
                 result["proposals"].append(proposal_data)
+                
     return result
+
 
 async def generate_full_tender_json(tender_id: str) -> Dict[str, Any]:
     """Async wrapper to generate tender JSON data in a thread pool."""
@@ -140,7 +175,6 @@ async def generate_full_tender_json(tender_id: str) -> Dict[str, Any]:
     with concurrent.futures.ThreadPoolExecutor() as executor:
         return await loop.run_in_executor(executor, _generate_tender_json_data_sync, tender_id)
 
-# --- FUNCIÓN QUE FALTABA ---
 async def process_uploaded_pdf_or_zip(file: UploadFile) -> Dict[str, Any]:
     """Processes a single uploaded PDF or a ZIP containing PDFs."""
     if file.content_type not in constants.ALLOWED_TYPES:

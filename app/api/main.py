@@ -202,3 +202,22 @@ async def stream_sse_endpoint():
 async def get_summary():
     """Checks if the analysis is complete and returns the executive summary if available."""
     return services.get_executive_summary_if_completed()
+
+@app.post("/tenders/{tender_id}/analyze", status_code=status.HTTP_202_ACCEPTED, tags=["Processing"])
+async def trigger_tender_analysis(tender_id: str):
+    """
+    Triggers the full AI agent analysis for a given tender.
+    The process runs in the background. The frontend will be notified
+    via SSE when the analysis is complete.
+    """
+    try:
+        response = await services.start_tender_analysis(tender_id)
+        
+        if "error" in response:
+            raise HTTPException(status_code=400, detail=response["error"])
+            
+        return response
+    except Exception as e:
+        if isinstance(e, HTTPException):
+            raise
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")

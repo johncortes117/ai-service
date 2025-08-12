@@ -1,6 +1,6 @@
-# services/sse_service.py
 import json
 import time
+import asyncio  # <--- ESTA ES LA LÍNEA QUE FALTABA
 from typing import Dict, Any, AsyncGenerator
 from fastapi import HTTPException
 
@@ -32,15 +32,18 @@ async def stream_sse_data() -> AsyncGenerator[str, None]:
                 
                 # Send data only if it has changed to avoid unnecessary traffic
                 if current_data != last_state:
-                    yield f"data: {json.dumps(current_data)}\n\n"
+                    yield f"data: {json.dumps(current_data, ensure_ascii=False)}\n\n"
                     last_state = current_data
+            # Si no hay datos o no han cambiado, no se envía nada para ahorrar ancho de banda
+            # El cliente simplemente mantiene la conexión abierta
         except (json.JSONDecodeError, FileNotFoundError):
-            # If file is being written or not found, send an empty message
+            # If file is being written or not found, yield an empty message or a specific state
             yield "data: {}\n\n"
         except Exception as e:
             yield f"data: {json.dumps({'error': str(e)})}\n\n"
         
-        await asyncio.sleep(2) # Use asyncio.sleep in an async function
+        # Usamos asyncio.sleep en una función asíncrona para no bloquear el servidor
+        await asyncio.sleep(2)
 
 def get_executive_summary_if_completed() -> Dict[str, Any]:
     """Checks if state transitioned and returns the executive summary."""

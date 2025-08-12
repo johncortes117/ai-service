@@ -1,0 +1,879 @@
+{
+  "executiveSummary": "No summary could be generated.",
+  "budgetComparison": {},
+  "proposalsAnalysis": [
+    {
+      "bidderName": "593REPUESTOS S.A.S",
+      "summaryData": {
+        "totalAmountUSD": 1000000,
+        "deliveryMonths": 12
+      },
+      "scores": {
+        "legal": 100,
+        "technical": 100,
+        "financial": 100,
+        "viabilityTotal": 100
+      },
+      "findingsSummary": {
+        "total": 30,
+        "critical": 30,
+        "warning": 0,
+        "ok": 0
+      },
+      "findings": [
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Presupuesto Referencial",
+          "requirementDetails": "El presupuesto referencial es de 1.041.498,00 dólares de Estados Unidos de América, sin incluir IVA.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Patrimonio Mínimo",
+          "requirementDetails": "El patrimonio del oferente debe ser igual o superior a 80.187,24 dólares de Estados Unidos de América.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Índice de Solvencia",
+          "requirementDetails": "El índice de solvencia debe ser mayor o igual a 1,0.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Índice de Endeudamiento",
+          "requirementDetails": "El índice de endeudamiento debe ser menor a 1,5.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Validez de la Oferta",
+          "requirementDetails": "Las ofertas se entenderán vigentes hasta 90 días calendario.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Experiencia General Mínima",
+          "requirementDetails": "El oferente debe tener experiencia general en suministro de repuestos para Centrales de Generación con potencia mayor o igual a 50 MW, con un mínimo de 1 contrato de 250.000,00 dólares.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Experiencia Específica Mínima",
+          "requirementDetails": "El oferente debe tener experiencia específica en suministro de repuestos para inyectores de turbinas con rodetes tipo Pelton, con un mínimo de 1 contrato de 125.000,00 dólares.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Especificaciones Técnicas",
+          "requirementDetails": "Los bienes ofertados deben cumplir con las especificaciones técnicas detalladas en el pliego.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Certificados de Calidad",
+          "requirementDetails": "El oferente debe presentar certificados de calidad de los bienes ofertados.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Valor Agregado Ecuatoriano",
+          "requirementDetails": "El oferente debe garantizar un porcentaje de Valor Agregado Ecuatoriano (VAE) de al menos 40%.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Garantía de Buen Uso de Anticipo",
+          "requirementDetails": "Se debe presentar una garantía de buen uso del anticipo por el 100% del valor entregado.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Cumplimiento de Plazos",
+          "requirementDetails": "El plazo estimado para la ejecución del contrato es de 360 días desde la notificación de que el anticipo está disponible.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Obligaciones Contractuales",
+          "requirementDetails": "El contratista debe cumplir con todas las obligaciones establecidas en el pliego y en el contrato.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Multas por Retraso",
+          "requirementDetails": "El contratista deberá pagar una multa del 5 por mil sobre el porcentaje de obligaciones pendientes por cada día de retraso.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Declaraciones Juramentadas",
+          "requirementDetails": "El contratista debe presentar declaraciones juramentadas de cumplimiento técnico y garantías.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Presupuesto Referencial",
+          "requirementDetails": "El presupuesto referencial es de 1.041.498,00 dólares de Estados Unidos de América, sin incluir IVA.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Patrimonio Mínimo",
+          "requirementDetails": "El patrimonio del oferente debe ser igual o superior a 80.187,24 dólares de Estados Unidos de América.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Índice de Solvencia",
+          "requirementDetails": "El índice de solvencia debe ser mayor o igual a 1,0.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Índice de Endeudamiento",
+          "requirementDetails": "El índice de endeudamiento debe ser menor a 1,5.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Validez de la Oferta",
+          "requirementDetails": "Las ofertas se entenderán vigentes hasta 90 días calendario.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Experiencia General Mínima",
+          "requirementDetails": "El oferente debe tener experiencia general en suministro de repuestos para Centrales de Generación con potencia mayor o igual a 50 MW, con un mínimo de 1 contrato de 250.000,00 dólares.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Experiencia Específica Mínima",
+          "requirementDetails": "El oferente debe tener experiencia específica en suministro de repuestos para inyectores de turbinas con rodetes tipo Pelton, con un mínimo de 1 contrato de 125.000,00 dólares.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Especificaciones Técnicas",
+          "requirementDetails": "Los bienes ofertados deben cumplir con las especificaciones técnicas detalladas en el pliego.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Certificados de Calidad",
+          "requirementDetails": "El oferente debe presentar certificados de calidad de los bienes ofertados.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Valor Agregado Ecuatoriano",
+          "requirementDetails": "El oferente debe garantizar un porcentaje de Valor Agregado Ecuatoriano (VAE) de al menos 40%.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Garantía de Buen Uso de Anticipo",
+          "requirementDetails": "Se debe presentar una garantía de buen uso del anticipo por el 100% del valor entregado.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Cumplimiento de Plazos",
+          "requirementDetails": "El plazo estimado para la ejecución del contrato es de 360 días desde la notificación de que el anticipo está disponible.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Obligaciones Contractuales",
+          "requirementDetails": "El contratista debe cumplir con todas las obligaciones establecidas en el pliego y en el contrato.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Multas por Retraso",
+          "requirementDetails": "El contratista deberá pagar una multa del 5 por mil sobre el porcentaje de obligaciones pendientes por cada día de retraso.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Declaraciones Juramentadas",
+          "requirementDetails": "El contratista debe presentar declaraciones juramentadas de cumplimiento técnico y garantías.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        }
+      ]
+    },
+    {
+      "bidderName": "COVALCO CIA LTDA",
+      "summaryData": {
+        "totalAmountUSD": 1000000,
+        "deliveryMonths": 12
+      },
+      "scores": {
+        "legal": 100,
+        "technical": 100,
+        "financial": 100,
+        "viabilityTotal": 100
+      },
+      "findingsSummary": {
+        "total": 30,
+        "critical": 30,
+        "warning": 0,
+        "ok": 0
+      },
+      "findings": [
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Presupuesto Referencial",
+          "requirementDetails": "El presupuesto referencial es de 1.041.498,00 dólares de Estados Unidos de América, sin incluir IVA.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Patrimonio Mínimo",
+          "requirementDetails": "El patrimonio del oferente debe ser igual o superior a 80.187,24 dólares de Estados Unidos de América.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Índice de Solvencia",
+          "requirementDetails": "El índice de solvencia debe ser mayor o igual a 1,0.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Índice de Endeudamiento",
+          "requirementDetails": "El índice de endeudamiento debe ser menor a 1,5.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Validez de la Oferta",
+          "requirementDetails": "Las ofertas se entenderán vigentes hasta 90 días calendario.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Experiencia General Mínima",
+          "requirementDetails": "El oferente debe tener experiencia general en suministro de repuestos para Centrales de Generación con potencia mayor o igual a 50 MW, con un mínimo de 1 contrato de 250.000,00 dólares.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Experiencia Específica Mínima",
+          "requirementDetails": "El oferente debe tener experiencia específica en suministro de repuestos para inyectores de turbinas con rodetes tipo Pelton, con un mínimo de 1 contrato de 125.000,00 dólares.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Especificaciones Técnicas",
+          "requirementDetails": "Los bienes ofertados deben cumplir con las especificaciones técnicas detalladas en el pliego.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Certificados de Calidad",
+          "requirementDetails": "El oferente debe presentar certificados de calidad de los bienes ofertados.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Valor Agregado Ecuatoriano",
+          "requirementDetails": "El oferente debe garantizar un porcentaje de Valor Agregado Ecuatoriano (VAE) de al menos 40%.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Garantía de Buen Uso de Anticipo",
+          "requirementDetails": "Se debe presentar una garantía de buen uso del anticipo por el 100% del valor entregado.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Cumplimiento de Plazos",
+          "requirementDetails": "El plazo estimado para la ejecución del contrato es de 360 días desde la notificación de que el anticipo está disponible.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Obligaciones Contractuales",
+          "requirementDetails": "El contratista debe cumplir con todas las obligaciones establecidas en el pliego y en el contrato.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Multas por Retraso",
+          "requirementDetails": "El contratista deberá pagar una multa del 5 por mil sobre el porcentaje de obligaciones pendientes por cada día de retraso.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Declaraciones Juramentadas",
+          "requirementDetails": "El contratista debe presentar declaraciones juramentadas de cumplimiento técnico y garantías.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Presupuesto Referencial",
+          "requirementDetails": "El presupuesto referencial es de 1.041.498,00 dólares de Estados Unidos de América, sin incluir IVA.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Patrimonio Mínimo",
+          "requirementDetails": "El patrimonio del oferente debe ser igual o superior a 80.187,24 dólares de Estados Unidos de América.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Índice de Solvencia",
+          "requirementDetails": "El índice de solvencia debe ser mayor o igual a 1,0.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Índice de Endeudamiento",
+          "requirementDetails": "El índice de endeudamiento debe ser menor a 1,5.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Validez de la Oferta",
+          "requirementDetails": "Las ofertas se entenderán vigentes hasta 90 días calendario.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Experiencia General Mínima",
+          "requirementDetails": "El oferente debe tener experiencia general en suministro de repuestos para Centrales de Generación con potencia mayor o igual a 50 MW, con un mínimo de 1 contrato de 250.000,00 dólares.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Experiencia Específica Mínima",
+          "requirementDetails": "El oferente debe tener experiencia específica en suministro de repuestos para inyectores de turbinas con rodetes tipo Pelton, con un mínimo de 1 contrato de 125.000,00 dólares.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Especificaciones Técnicas",
+          "requirementDetails": "Los bienes ofertados deben cumplir con las especificaciones técnicas detalladas en el pliego.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Certificados de Calidad",
+          "requirementDetails": "El oferente debe presentar certificados de calidad de los bienes ofertados.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Valor Agregado Ecuatoriano",
+          "requirementDetails": "El oferente debe garantizar un porcentaje de Valor Agregado Ecuatoriano (VAE) de al menos 40%.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Garantía de Buen Uso de Anticipo",
+          "requirementDetails": "Se debe presentar una garantía de buen uso del anticipo por el 100% del valor entregado.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Cumplimiento de Plazos",
+          "requirementDetails": "El plazo estimado para la ejecución del contrato es de 360 días desde la notificación de que el anticipo está disponible.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Obligaciones Contractuales",
+          "requirementDetails": "El contratista debe cumplir con todas las obligaciones establecidas en el pliego y en el contrato.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Multas por Retraso",
+          "requirementDetails": "El contratista deberá pagar una multa del 5 por mil sobre el porcentaje de obligaciones pendientes por cada día de retraso.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Declaraciones Juramentadas",
+          "requirementDetails": "El contratista debe presentar declaraciones juramentadas de cumplimiento técnico y garantías.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        }
+      ]
+    },
+    {
+      "bidderName": "GAS TURBINES SERVICES DEL ECUADOR S.A. TURBIECSA",
+      "summaryData": {
+        "totalAmountUSD": 1000000,
+        "deliveryMonths": 12
+      },
+      "scores": {
+        "legal": 100,
+        "technical": 100,
+        "financial": 100,
+        "viabilityTotal": 100
+      },
+      "findingsSummary": {
+        "total": 30,
+        "critical": 30,
+        "warning": 0,
+        "ok": 0
+      },
+      "findings": [
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Presupuesto Referencial",
+          "requirementDetails": "El presupuesto referencial es de 1.041.498,00 dólares de Estados Unidos de América, sin incluir IVA.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Patrimonio Mínimo",
+          "requirementDetails": "El patrimonio del oferente debe ser igual o superior a 80.187,24 dólares de Estados Unidos de América.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Índice de Solvencia",
+          "requirementDetails": "El índice de solvencia debe ser mayor o igual a 1,0.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Índice de Endeudamiento",
+          "requirementDetails": "El índice de endeudamiento debe ser menor a 1,5.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Validez de la Oferta",
+          "requirementDetails": "Las ofertas se entenderán vigentes hasta 90 días calendario.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Experiencia General Mínima",
+          "requirementDetails": "El oferente debe tener experiencia general en suministro de repuestos para Centrales de Generación con potencia mayor o igual a 50 MW, con un mínimo de 1 contrato de 250.000,00 dólares.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Experiencia Específica Mínima",
+          "requirementDetails": "El oferente debe tener experiencia específica en suministro de repuestos para inyectores de turbinas con rodetes tipo Pelton, con un mínimo de 1 contrato de 125.000,00 dólares.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Especificaciones Técnicas",
+          "requirementDetails": "Los bienes ofertados deben cumplir con las especificaciones técnicas detalladas en el pliego.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Certificados de Calidad",
+          "requirementDetails": "El oferente debe presentar certificados de calidad de los bienes ofertados.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Valor Agregado Ecuatoriano",
+          "requirementDetails": "El oferente debe garantizar un porcentaje de Valor Agregado Ecuatoriano (VAE) de al menos 40%.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Garantía de Buen Uso de Anticipo",
+          "requirementDetails": "Se debe presentar una garantía de buen uso del anticipo por el 100% del valor entregado.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Cumplimiento de Plazos",
+          "requirementDetails": "El plazo estimado para la ejecución del contrato es de 360 días desde la notificación de que el anticipo está disponible.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Obligaciones Contractuales",
+          "requirementDetails": "El contratista debe cumplir con todas las obligaciones establecidas en el pliego y en el contrato.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Multas por Retraso",
+          "requirementDetails": "El contratista deberá pagar una multa del 5 por mil sobre el porcentaje de obligaciones pendientes por cada día de retraso.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Declaraciones Juramentadas",
+          "requirementDetails": "El contratista debe presentar declaraciones juramentadas de cumplimiento técnico y garantías.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Presupuesto Referencial",
+          "requirementDetails": "El presupuesto referencial es de 1.041.498,00 dólares de Estados Unidos de América, sin incluir IVA.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Patrimonio Mínimo",
+          "requirementDetails": "El patrimonio del oferente debe ser igual o superior a 80.187,24 dólares de Estados Unidos de América.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Índice de Solvencia",
+          "requirementDetails": "El índice de solvencia debe ser mayor o igual a 1,0.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Índice de Endeudamiento",
+          "requirementDetails": "El índice de endeudamiento debe ser menor a 1,5.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Validez de la Oferta",
+          "requirementDetails": "Las ofertas se entenderán vigentes hasta 90 días calendario.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Experiencia General Mínima",
+          "requirementDetails": "El oferente debe tener experiencia general en suministro de repuestos para Centrales de Generación con potencia mayor o igual a 50 MW, con un mínimo de 1 contrato de 250.000,00 dólares.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Experiencia Específica Mínima",
+          "requirementDetails": "El oferente debe tener experiencia específica en suministro de repuestos para inyectores de turbinas con rodetes tipo Pelton, con un mínimo de 1 contrato de 125.000,00 dólares.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Especificaciones Técnicas",
+          "requirementDetails": "Los bienes ofertados deben cumplir con las especificaciones técnicas detalladas en el pliego.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Certificados de Calidad",
+          "requirementDetails": "El oferente debe presentar certificados de calidad de los bienes ofertados.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Valor Agregado Ecuatoriano",
+          "requirementDetails": "El oferente debe garantizar un porcentaje de Valor Agregado Ecuatoriano (VAE) de al menos 40%.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Garantía de Buen Uso de Anticipo",
+          "requirementDetails": "Se debe presentar una garantía de buen uso del anticipo por el 100% del valor entregado.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Cumplimiento de Plazos",
+          "requirementDetails": "El plazo estimado para la ejecución del contrato es de 360 días desde la notificación de que el anticipo está disponible.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Obligaciones Contractuales",
+          "requirementDetails": "El contratista debe cumplir con todas las obligaciones establecidas en el pliego y en el contrato.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Multas por Retraso",
+          "requirementDetails": "El contratista deberá pagar una multa del 5 por mil sobre el porcentaje de obligaciones pendientes por cada día de retraso.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        },
+        {
+          "agentSource": "Project Manager",
+          "severity": "CRITICAL",
+          "requirementName": "Declaraciones Juramentadas",
+          "requirementDetails": "El contratista debe presentar declaraciones juramentadas de cumplimiento técnico y garantías.",
+          "isCompliant": false,
+          "observation": "Omisión Documental: El formulario referencia al anexo 'None', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
+          "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+        }
+      ]
+    }
+  ]
+}
