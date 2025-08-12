@@ -1,21 +1,30 @@
-# constants.py
+# app/core/constants.py
 """
 Constants, settings, and configurations for the API module.
 """
 from pathlib import Path
 
-# Project configuration
-PROJECT_NAME = "AI Service API"
-DESCRIPTION = "API for processing PDF documents and files"
-VERSION = "1.0.0"
+# --- Directory Configurations (using absolute paths for robustness) ---
 
-# --- Directory Configurations (using pathlib for robust path handling) ---
-BASE_DIR = Path("./")
-DATA_DIR = BASE_DIR / "data"
+# 1. Obtiene la ruta al directorio donde está este archivo (app/core)
+#    ej: /ruta/a/tu/proyecto/app/core
+CORE_DIR = Path(__file__).parent.resolve()
+
+# 2. Sube dos niveles para llegar a la raíz del proyecto
+#    ej: /ruta/a/tu/proyecto/
+PROJECT_ROOT = CORE_DIR.parent.parent
+
+# 3. Construye todas las demás rutas a partir de la raíz del proyecto
+DATA_DIR = PROJECT_ROOT / "data"
 TENDERS_DIR = DATA_DIR / "tenders"
 PROPOSALS_DIR = DATA_DIR / "proposals"
 TEMP_DIR = DATA_DIR / "temp_files"
 SSE_DATA_FILE = DATA_DIR / "sse_data.json"
+
+# --- Project Configuration ---
+PROJECT_NAME = "AI Service API"
+DESCRIPTION = "API for processing PDF documents and files"
+VERSION = "1.0.0"
 
 # --- File Type Configurations ---
 ALLOWED_PDF_TYPES = ["application/pdf"]
@@ -34,6 +43,6 @@ ERROR_FILE_NOT_FOUND = "File not found."
 # --- Function to ensure directories exist on startup ---
 def create_directories():
     """Creates all necessary directories if they don't exist."""
-    # Este es el bloque que faltaba
+    print(f"--- Ensuring data directories exist inside: {DATA_DIR} ---")
     for directory in [DATA_DIR, TENDERS_DIR, PROPOSALS_DIR, TEMP_DIR]:
         directory.mkdir(parents=True, exist_ok=True)
