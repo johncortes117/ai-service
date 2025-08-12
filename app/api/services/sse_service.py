@@ -9,10 +9,16 @@ from app.core import constants
 def save_sse_data(payload: Dict[str, Any]) -> Dict[str, str]:
     """Saves the received JSON to the SSE data file."""
     try:
+        # Abre el archivo definido en constants.py en modo escritura ("w")
+        # Esto sobrescribe el archivo si ya existe, o lo crea si no.
         with open(constants.SSE_DATA_FILE, "w", encoding="utf-8") as f:
+            # Escribe el diccionario 'payload' en el archivo, con formato legible
             json.dump(payload, f, ensure_ascii=False, indent=2)
+        
+        # Devuelve una respuesta de éxito
         return {"message": "Data saved successfully for SSE streaming."}
     except Exception as e:
+        # Si algo sale mal al escribir el archivo, lanza un error 500
         raise HTTPException(status_code=500, detail=f"Error saving SSE data: {e}")
 
 async def stream_sse_data() -> AsyncGenerator[str, None]:
