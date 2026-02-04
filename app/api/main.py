@@ -9,6 +9,8 @@ import traceback
 # Import services, schemas and constants
 from app.api import services
 from app.api import schemas
+from app.api.schemas import analysis_schemas
+from app.api.services import validation_service
 from app.core import constants
 
 # Initialize FastAPI app
@@ -47,7 +49,11 @@ def health_check() -> Dict[str, str]:
 async def upload_tender_sequential(file: UploadFile = File(...)):
     """Uploads a tender PDF, assigning the next available sequential ID."""
     try:
+        # Validate PDF before processing
+        await validation_service.validate_tender_pdf(file)
         return await services.upload_new_tender(file)
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error uploading tender: {e}")
 
@@ -147,10 +153,15 @@ async def upload_proposal_files(
 ):
     """Uploads and organizes proposal files into a structured directory."""
     try:
+        # Validate all files before processing
+        await validation_service.validate_proposal_files(principal_file, attachment_files)
+        
         result = await services.upload_proposal(
             tender_id, contractor_id, company_name, principal_file, attachment_files
         )
         return {**result, "tender_id": tender_id, "contractor_id": contractor_id, "company_name": company_name}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing proposal files: {e}")
 
@@ -256,3 +267,48 @@ async def get_latest_analysis_report():
     except Exception as e:
         # Para cualquier otro error inesperado al leer el archivo
         raise HTTPException(status_code=500, detail=f"No se pudo leer el reporte de análisis: {e}")
+
+
+# --- New Analysis Tracking Endpoints ---
+
+@app.get("/tenders/{tender_id}/analysis/status", response_model=analysis_schemas.AnalysisStatus, tags=["Analysis"])
+async def get_analysis_status(tender_id: str):
+    """
+    Gets the current status of an analysis for a specific tender.
+    
+    Returns:
+        Current analysis status including progress, state, and any error details
+    """
+    try:
+        from app.api.services import sse_service
+        status_data = sse_service.get_current_analysis_status(tender_id)
+        
+        return analysis_schemas.AnalysisStatus(
+            tender_id=tender_id,
+            status=status_data.get("status", "pending"),
+            progress=status_data.get("progress", 0),
+            current_step=status_data.get("current_step"),
+            message=status_data.get("message", ""),
+            error_details=status_data.get("error_details")
+        )
+    except Exception as e:
+        if isinstance(e, HTTPException):
+            raise
+        raise HTTPException(status_code=500, detail=f"Error retrieving analysis status: {e}")
+
+
+@app.get("/analysis/current-status", tags=["Analysis"])
+async def get_current_status():
+    """
+    Gets the status of the currently running analysis (if any).
+    
+    Returns:
+        Current global analysis status
+    """
+    try:
+        from app.api.services import sse_service
+        return sse_service.get_current_analysis_status()
+    except Exception as e:
+        if isinstance(e, HTTPException):
+            raise
+        raise HTTPException(status_code=500, detail=f"Error retrieving current status: {e}")

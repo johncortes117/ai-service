@@ -18,6 +18,15 @@ async def run_analysis_and_notify(tender_id: str, input_data: Dict[str, Any]):
     print(f"--- 🤖 AGENT: Starting analysis for tender_id: {tender_id} ---")
     
     try:
+        # Emit initial progress event
+        sse_service.emit_progress_event(
+            tender_id=tender_id,
+            event_type="progress",
+            progress=10,
+            message="Iniciando análisis de licitación...",
+            node_name="start"
+        )
+        
         # Aquí es donde se invoca al agente con los datos de entrada
         final_state = await agentGraph.ainvoke(input_data)
         
@@ -27,10 +36,20 @@ async def run_analysis_and_notify(tender_id: str, input_data: Dict[str, Any]):
         if report_json:
             print(f"--- 🤖 AGENT: Analysis for tender {tender_id} completed successfully. ---")
             
+            # Emit completion event
+            sse_service.emit_progress_event(
+                tender_id=tender_id,
+                event_type="complete",
+                progress=100,
+                message="Análisis completado exitosamente",
+                node_name="complete"
+            )
+            
             # Actualizamos el estado para que el frontend sepa que se completó
             # y enviamos el reporte completo.
             report_json['state'] = 'Completado'
             report_json['tenderId'] = tender_id
+            report_json['currentProgress'] = 100
             
             # Notificamos al frontend enviando el resultado al endpoint de SSE
             sse_service.save_sse_data(report_json)
@@ -40,8 +59,15 @@ async def run_analysis_and_notify(tender_id: str, input_data: Dict[str, Any]):
             error_payload = {
                 "state": "Error",
                 "tenderId": tender_id,
+                "currentProgress": 0,
                 "errorDetails": "The agent finished but did not produce a final report."
             }
+            sse_service.emit_progress_event(
+                tender_id=tender_id,
+                event_type="error",
+                progress=0,
+                message="Error: No se pudo generar el reporte final"
+            )
             sse_service.save_sse_data(error_payload)
 
     except Exception as e:
@@ -50,8 +76,15 @@ async def run_analysis_and_notify(tender_id: str, input_data: Dict[str, Any]):
         error_payload = {
             "state": "Error",
             "tenderId": tender_id,
+            "currentProgress": 0,
             "errorDetails": str(e)
         }
+        sse_service.emit_progress_event(
+            tender_id=tender_id,
+            event_type="error",
+            progress=0,
+            message=f"Error crítico: {str(e)}"
+        )
         sse_service.save_sse_data(error_payload)
 
 
@@ -86,6 +119,8 @@ async def start_tender_analysis(tender_id: str):
         "state": "En Análisis",
         "isLoading": True,
         "tenderId": tender_id,
+        "currentProgress": 5,
+        "currentStep": "Preparando análisis...",
         "message": f"El análisis para la licitación {tender_id} ha comenzado. Esto puede tardar varios minutos."
     }
     sse_service.save_sse_data(initial_payload)
