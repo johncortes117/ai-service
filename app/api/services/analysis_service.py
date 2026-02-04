@@ -1,6 +1,7 @@
 # services/analysis_service.py
 
 import asyncio
+import os
 from typing import Dict, Any
 
 # Importamos el agente y las funciones de los otros servicios
@@ -16,6 +17,9 @@ async def run_analysis_and_notify(tender_id: str, input_data: Dict[str, Any]):
     when finished, sends the final report to the SSE endpoint.
     """
     print(f"--- 🤖 AGENT: Starting analysis for tender_id: {tender_id} ---")
+    
+    # Set tender_id in environment for SSE progress tracking in pipeline nodes
+    os.environ["CURRENT_TENDER_ID"] = tender_id
     
     try:
         # Emit initial progress event

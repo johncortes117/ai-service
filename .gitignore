@@ -6,3 +6,7 @@
 checkpoints/
 data/
 .langgraph_api/
+
+output_agent.json
+.agent
+CONTEXT.md
