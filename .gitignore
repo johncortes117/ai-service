@@ -1,12 +1,31 @@
+# Environment
 .env
 
+# Python cache
 **/__pycache__/
 *.py[cod]
+*$py.class
+*.so
+.Python
 
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Project specific
 checkpoints/
 data/
 .langgraph_api/
-
 output_agent.json
 .agent
 CONTEXT.md
+
+# Poetry (legacy)
+poetry.lock

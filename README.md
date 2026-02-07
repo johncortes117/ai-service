@@ -1,23 +1,36 @@
-# HACKIATHON
-## Cómo levantar el proyecto
+# HACKIATHON - TenderAnalyzer AI Service
 
-1. **Instala las dependencias:**
+## 🚀 Quick Start
+
+### Prerequisites
+- Python 3.9+
+- [uv](https://github.com/astral-sh/uv) - Fast Python package installer
+
+### Installation
+
+1. **Install uv (if not already installed):**
    
 	```powershell
-	poetry install
+	pip install uv
 	```
 
-2. **Configura las variables de entorno:**
-   
-	Copia `.env.example` a `.env` y ajusta los valores según tu entorno.
-
-3. **Levanta el servidor de desarrollo:**
+2. **Install dependencies:**
    
 	```powershell
-	poetry run uvicorn app.api.main:app --host 127.0.0.1 --port 8000
+	uv sync
 	```
 
-4. **Accede a la documentación interactiva:**
+3. **Configure environment variables:**
+   
+	Copy `.env.example` to `.env` and adjust the values according to your environment.
+
+4. **Run the development server:**
+   
+	```powershell
+	uv run uvicorn app.api.main:app --host 127.0.0.1 --port 8000 --reload
+	```
+
+5. **Access interactive documentation:**
    
 	- [http://localhost:8000/docs](http://localhost:8000/docs) (Swagger UI)
 	- [http://localhost:8000/redoc](http://localhost:8000/redoc) (ReDoc)
