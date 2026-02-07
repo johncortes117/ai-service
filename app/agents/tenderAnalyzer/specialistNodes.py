@@ -41,7 +41,15 @@ async def projectManagerRouterNode(state: ProposalAuditState) -> Dict[str, Any]:
     
     # Step 1: Create the requirement-to-annex map using the LLM
     requirement_names = [req.name for req in all_requirements]
-    context_for_mapper = f"Requirements List: {requirement_names}\n---\nMain Proposal Form Text:\n{mainFormText}"
+    available_annexes = list(annexes.keys())
+    
+    context_for_mapper = f"""Requirements List: {requirement_names}
+---
+Available Annexes in Proposal: {available_annexes}
+---
+Main Proposal Form Text:
+{mainFormText}"""
+    
     messages = [
         SystemMessage(content=CREATE_ANNEX_MAP_PROMPT),
         HumanMessage(content=context_for_mapper)

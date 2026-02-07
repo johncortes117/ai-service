@@ -8,13 +8,18 @@ import type { BudgetComparison, ProposalScores, FindingsSummary } from './types'
  * Transform budget comparison data for Bar Chart
  */
 export function transformBudgetForBarChart(budgetComparison: BudgetComparison) {
+    // Handle undefined or missing data
+    if (!budgetComparison || !budgetComparison.categories || !budgetComparison.proposals) {
+        return [];
+    }
+
     const { categories, proposals } = budgetComparison;
 
     return categories.map((category, idx) => ({
         category,
         ...proposals.reduce((acc, proposal) => ({
             ...acc,
-            [proposal.bidderName]: proposal.valuesUSD[idx]
+            [proposal.bidderName]: proposal.valuesUSD[idx] || 0
         }), {})
     }));
 }

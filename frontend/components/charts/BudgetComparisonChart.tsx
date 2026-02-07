@@ -19,7 +19,25 @@ interface BudgetComparisonChartProps {
 }
 
 export function BudgetComparisonChart({ budgetComparison }: BudgetComparisonChartProps) {
+  // Handle missing or invalid budget data
+  if (!budgetComparison || !budgetComparison.categories || !budgetComparison.proposals) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <p className="text-sm text-gray-500">No budget comparison data available</p>
+      </div>
+    );
+  }
+
   const data = transformBudgetForBarChart(budgetComparison);
+  
+  if (data.length === 0) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <p className="text-sm text-gray-500">No budget data to display</p>
+      </div>
+    );
+  }
+
   const { proposals } = budgetComparison;
 
   const CustomTooltip = ({ active, payload, label }: any) => {
