@@ -39,6 +39,7 @@ async def projectManagerRouterNode(state: ProposalAuditState) -> Dict[str, Any]:
         return {"technicalTasks": [], "financialTasks": [], "legalTasks": []}
     
     findings = state.get("findings", [])
+    new_findings = []
     
     ruc = proposal.get("ruc")
     if ruc:
@@ -49,7 +50,7 @@ async def projectManagerRouterNode(state: ProposalAuditState) -> Dict[str, Any]:
             ruc_result = await validateRuc.ainvoke({"ruc": ruc})
             
             if "error" in ruc_result:
-                findings.append({
+                new_findings.append({
                     "agentSource": "Project Manager",
                     "severity": "CRITICAL",
                     "requirementName": "Company RUC Validation",
@@ -59,7 +60,7 @@ async def projectManagerRouterNode(state: ProposalAuditState) -> Dict[str, Any]:
                     "recommendation": "Request valid RUC or disqualify proposal."
                 })
             else:
-                findings.append({
+                new_findings.append({
                     "agentSource": "Project Manager",
                     "severity": "OK",
                     "requirementName": "Company RUC Validation",
@@ -70,7 +71,7 @@ async def projectManagerRouterNode(state: ProposalAuditState) -> Dict[str, Any]:
                 })
         except Exception as e:
             print(f"RUC validation error: {e}")
-            findings.append({
+            new_findings.append({
                 "agentSource": "Project Manager",
                 "severity": "WARNING",
                 "requirementName": "Company RUC Validation",
@@ -80,7 +81,7 @@ async def projectManagerRouterNode(state: ProposalAuditState) -> Dict[str, Any]:
                 "recommendation": "Verify company registration manually."
             })
     else:
-        findings.append({
+        new_findings.append({
             "agentSource": "Project Manager",
             "severity": "CRITICAL",
             "requirementName": "Company RUC Validation",
@@ -136,7 +137,7 @@ Main Proposal Form Text:
             real_annex_key = find_real_annex_key(mapped_filename)
 
             if not real_annex_key:
-                findings.append({
+                new_findings.append({
                     "agentSource": "Project Manager", "severity": "CRITICAL",
                     "requirementName": requirement.name, "requirementDetails": requirement.details,
                     "isCompliant": False,
@@ -159,7 +160,7 @@ Main Proposal Form Text:
     print(f"Router prepared {len(technicalTasks)} technical, {len(financialTasks)} financial, {len(legalTasks)} legal tasks.")
     
     return {
-        "findings": findings,
+        "findings": new_findings,
         "technicalTasks": technicalTasks,
         "financialTasks": financialTasks,
         "legalTasks": legalTasks,
