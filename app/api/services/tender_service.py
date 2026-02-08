@@ -151,18 +151,30 @@ def _generate_tender_json_data_sync(tender_id: str) -> Dict[str, Any]:
             if company_dir.is_dir():
                 proposal_data = {
                     "contractorId": contractor_id, "companyName": company_dir.name,
-                    "principalText": "", "lastPageText": "", "attachments": {}
+                    "mainFormText": "", "annexIndexText": "", "attachments": {}
                 }
                 try:
                     p_file = next(company_dir.glob(f"{constants.PREFIX_PRINCIPAL}_*.pdf"))
                     # También limpiamos el texto de la propuesta principal
-                    proposal_data["principalText"] = clean_pdf_text(pdf_service.extract_text_from_pdf(str(p_file)))
-                    proposal_data["lastPageText"] = pdf_service.extract_last_page_from_pdf(str(p_file))
+                    proposal_data["mainFormText"] = clean_pdf_text(pdf_service.extract_text_from_pdf(str(p_file)))
+                    proposal_data["annexIndexText"] = pdf_service.extract_last_page_from_pdf(str(p_file))
                 except StopIteration: pass
                 
                 for a_file in company_dir.glob(f"{constants.PREFIX_ATTACHMENTS}_*.pdf"):
-                    # Y el de los anexos
-                    proposal_data["attachments"][a_file.name] = clean_pdf_text(pdf_service.extract_text_from_pdf(str(a_file)))
+                    # Extract original filename from pattern: ATTACHMENT_original_name_uuid.pdf
+                    # We want to use "original_name.pdf" as the key for better LLM mapping
+                    filename_parts = a_file.stem.split("_")  # Split by underscore
+                    if len(filename_parts) >= 3:
+                        # Format: ATTACHMENT_original_name_uuid
+                        # Remove prefix (ATTACHMENT) and UUID (last part), keep middle (original name)
+                        original_name_parts = filename_parts[1:-1]  # Everything between prefix and UUID
+                        annex_key = "_".join(original_name_parts) + ".pdf"
+                    else:
+                        # Fallback to full filename if pattern doesn't match expected format
+                        annex_key = a_file.name
+                    
+                    # También limpiamos el de los anexos
+                    proposal_data["attachments"][annex_key] = clean_pdf_text(pdf_service.extract_text_from_pdf(str(a_file)))
                 
                 result["proposals"].append(proposal_data)
                 
