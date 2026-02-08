@@ -5,9 +5,9 @@ import httpx
 async def validateRuc(ruc: str) -> dict:
     """
     Validates an Ecuadorian RUC by calling the official SRI public API.
-    It extracts and returns the bidder's name, status, and primary economic activity.
+    Returns the bidder's name, status, and primary economic activity.
     """
-    print(f"--- 🛠️ TOOL CALLED: validateRuc with RUC: {ruc} ---")
+    print(f"TOOL CALLED: validateRuc with RUC: {ruc}")
     
     url = f"https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/obtenerPorNumerosRuc?&ruc={ruc}"
     
@@ -29,8 +29,8 @@ async def validateRuc(ruc: str) -> dict:
             }
             
     except httpx.HTTPStatusError as e:
-        print(f"--- TOOL ERROR: HTTP error validating RUC {ruc}: {e} ---")
+        print(f"TOOL ERROR: HTTP error validating RUC {ruc}: {e}")
         return {"error": f"Failed to validate RUC. API returned status: {e.response.status_code}"}
     except Exception as e:
-        print(f"--- TOOL ERROR: An unexpected error occurred: {e} ---")
+        print(f"TOOL ERROR: An unexpected error occurred: {e}")
         return {"error": f"An unexpected error occurred while validating RUC: {e}"}
