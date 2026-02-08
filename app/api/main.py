@@ -14,12 +14,24 @@ from app.api.services import validation_service
 from app.core import constants
 
 # Initialize FastAPI app
+from contextlib import asynccontextmanager
+
+# Configure lifespan events
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Ensure necessary directories exist
+    constants.create_directories()
+    yield
+    # Shutdown: Clean up resources if needed (none for now)
+
+# Initialize FastAPI app with lifespan
 app = FastAPI(
     title=constants.PROJECT_NAME,
     description=constants.DESCRIPTION,
     version=constants.VERSION,
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan
 )
 
 # Add CORS middleware (assuming CORS_ORIGINS is defined in a config file)
@@ -32,10 +44,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Ensure necessary directories exist on startup
-@app.on_event("startup")
-def on_startup():
-    constants.create_directories()
+
 
 # --- System Endpoints ---
 
