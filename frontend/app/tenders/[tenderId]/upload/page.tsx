@@ -15,7 +15,6 @@ export default function UploadProposalsPage() {
   const [isUploading, setIsUploading] = useState(false);
 
   const handleProposalUpload = async (data: {
-    contractorId: string;
     companyName: string;
     ruc: string;
     principalFile: File;
@@ -25,7 +24,6 @@ export default function UploadProposalsPage() {
     try {
       await proposalAPI.uploadProposal(
         tenderId,
-        data.contractorId,
         data.companyName,
         data.ruc,
         data.principalFile,

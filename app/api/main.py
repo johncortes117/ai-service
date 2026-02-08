@@ -142,10 +142,9 @@ async def get_application_details(tender_id: str, proposal_id: str):
 
 # --- Proposal Endpoints ---
 
-@app.post("/proposals/upload/{tender_id}/{contractor_id}/{company_name}/{ruc}", response_model=schemas.ProposalUploadResponse, status_code=status.HTTP_201_CREATED, tags=["Proposals"])
+@app.post("/proposals/upload/{tender_id}/{company_name}/{ruc}", response_model=schemas.ProposalUploadResponse, status_code=status.HTTP_201_CREATED, tags=["Proposals"])
 async def upload_proposal_files(
     tender_id: str, 
-    contractor_id: str, 
     company_name: str,
     ruc: str,
     principal_file: UploadFile = File(..., description="Main proposal PDF file"),
@@ -153,6 +152,8 @@ async def upload_proposal_files(
 ):
     """Uploads and organizes proposal files into a structured directory."""
     try:
+        contractor_id = f"C_{ruc}"
+        
         await validation_service.validate_proposal_files(principal_file, attachment_files)
         
         result = await services.upload_proposal(
