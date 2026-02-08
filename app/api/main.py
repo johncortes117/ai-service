@@ -106,7 +106,6 @@ async def get_tender_details(tender_id: str):
     Gets the details of a tender, including its file and a list of its applications (proposals).
     """
     try:
-        # Reutilizamos la lógica para obtener los contratistas (aplicaciones)
         applications = services.get_tender_contractors(tender_id)
         
         tender_file = f"TENDER_{tender_id}.pdf"
@@ -119,10 +118,9 @@ async def get_tender_details(tender_id: str):
             "tenderId": tender_id,
             "tenderFile": tender_file if tender_path.exists() else "File not found",
             "totalApplications": len(applications),
-            "applications": applications # Lista de propuestas/contratistas
+            "applications": applications
         }
     except Exception as e:
-        # Evita propagar la excepción de HTTPException para personalizar el mensaje
         if isinstance(e, HTTPException):
             raise
         raise HTTPException(status_code=500, detail=f"Error retrieving details for tender {tender_id}: {e}")
@@ -135,7 +133,6 @@ async def get_application_details(tender_id: str, proposal_id: str):
     The proposal_id is the company name.
     """
     try:
-        # Llamamos a la nueva función del servicio
         details = services.get_proposal_details(tender_id, proposal_id)
         return details
     except Exception as e:
@@ -237,36 +234,26 @@ async def trigger_tender_analysis(tender_id: str):
 @app.get("/get-analysis-report", tags=["Processing"])
 async def get_latest_analysis_report():
     """
-    La forma más sencilla de obtener el reporte:
-    Lee el archivo 'sse_data.json' y devuelve su contenido como un objeto JSON.
+    Returns the analysis report by reading the sse_data.json file.
     """
-    # Usamos la ruta absoluta desde las constantes, que es mucho más fiable
     report_path = constants.SSE_DATA_FILE
 
-    # Verificamos si el archivo existe
     if not report_path.is_file():
         raise HTTPException(
             status_code=404, 
-            detail="El reporte de análisis no ha sido generado todavía o no se encuentra."
+            detail="Analysis report has not been generated yet or cannot be found."
         )
 
     try:
-        # Abrimos el archivo y leemos su contenido
         with open(report_path, "r", encoding="utf-8") as f:
-            # json.load() convierte la cadena de texto JSON del archivo
-            # en un diccionario de Python.
             report_data = json.load(f)
         
-        # Retornamos el diccionario. FastAPI lo convertirá automáticamente
-        # en una respuesta JSON con el Content-Type correcto.
         return report_data
         
     except json.JSONDecodeError:
-        # Si el archivo está corrupto o no es un JSON válido
-        raise HTTPException(status_code=500, detail="Error al procesar el archivo del reporte. El formato JSON es inválido.")
+        raise HTTPException(status_code=500, detail="Error processing report file. Invalid JSON format.")
     except Exception as e:
-        # Para cualquier otro error inesperado al leer el archivo
-        raise HTTPException(status_code=500, detail=f"No se pudo leer el reporte de análisis: {e}")
+        raise HTTPException(status_code=500, detail=f"Could not read analysis report: {e}")
 
 
 # --- New Analysis Tracking Endpoints ---
