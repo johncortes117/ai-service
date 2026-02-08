@@ -206,16 +206,12 @@ async def aggregateResultsNode(state: TenderAnalysisState) -> Dict[str, Any]:
     except Exception as e:
         print(f"--- ❌ ERROR during executive summary LLM call: {e} ---")
 
-    # --- 2. Build Budget Comparison Object (Data Processing) ---
-    
-    budget_categories = ["Design", "Development", "Testing", "Deployment"]
-    budget_proposals = [
-        {"bidderName": report.get("finalAnalysis", {}).get("bidderName", "Unknown"), "valuesUSD": [10, 50, 20, 20]}
-        for report in individual_reports
-    ]
+    # --- 2. Budget Comparison (Disabled) ---
+    # Budget comparison chart is currently disabled in the frontend
+    # Return empty structure to satisfy schema
     budget_comparison = {
-        "categories": budget_categories,
-        "proposals": budget_proposals
+        "categories": [],
+        "proposals": []
     }
     
     analysis_list = [
