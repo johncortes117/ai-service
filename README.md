@@ -1,166 +1,127 @@
-# HACKIATHON - TenderAnalyzer AI Service
+# AI-Powered Tender Analyst
 
-## 🚀 Quick Start
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Python](https://img.shields.io/badge/python-3.9%2B-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.109.0-009688.svg)
+![Next.js](https://img.shields.io/badge/Next.js-14.0-black)
+![LangGraph](https://img.shields.io/badge/LangGraph-0.0.10-orange)
+
+An autonomous, multi-agent system designed to audit public tender proposals by cross-referencing claims with documentary evidence.
+
+## The Operational Challenge
+
+Manual evaluation of tender proposals represents a critical bottleneck for any organization. The primary risk lies not in declared information, but in the technical discrepancies often found between main forms and hundreds of pages of supporting annexes. This process, traditionally slow and prone to human error, often leads to unfair disqualifications or the awarding of contracts to entities that do not truly meet the requirements.
+
+## The Solution
+
+**AI-Powered Tender Analyst** is an autonomous system based on graph architecture that automates deep verification of proposals. Unlike conventional text analysis methods, this system employs a specialized workflow coordinating three parallel audit fronts: **Legal**, **Technical**, and **Financial**.
+
+Each agent operates under a cross-validation logic: it doesn't just read what the bidder claims to fulfill, but actively searches, extracts, and analyzes specific evidence within attached documents to confirm the veracity of the declaration.
+
+### Impact on Decision Making
+
+The system transforms unstructured documentation into an Objective Viability Score. Upon completion, the user obtains:
+
+*   **Omission Detection**: Instant identification of requirements lacking documentary support.
+*   **Inconsistency Analysis**: Detailed reporting of discrepancies between declared values and found evidence.
+*   **Risk Mitigation**: Classification of findings by severity levels to prioritize human review on critical points.
+
+By reducing days of manual review to seconds of structured processing, **AI-Powered Tender Analyst** ensures that supplier selection is based on verifiable data, removing subjectivity and strengthening the rigor of the contracting process.
+
+## Key Features
+
+- **Multi-Agent Orchestration**: Powered by LangGraph to coordinate specialized agents (Legal, Technical, Financial).
+- **Real-time RUC Validation**: Direct integration with SRI (Ecuador) to validate taxpayer status and economic activity.
+- **Deep Document Analysis**: Extracts and analyzes text from PDFs and massive ZIP archives.
+- **Live Progress Streaming**: Server-Sent Events (SSE) provide real-time feedback on the analysis pipeline.
+- **Objective Scoring**: Generates a quantified compliance score based on evidence, not just claims.
+
+## Architecture
+
+```mermaid
+graph TD
+    User[User] -->|Uploads PDF/ZIP| Frontend[Next.js Frontend]
+    Frontend -->|API Request| Backend[FastAPI Backend]
+    Backend -->|Trigger Analysis| Orchestrator[LangGraph Orchestrator]
+    
+    subgraph "Multi-Agent System"
+        Orchestrator --> Legal[Legal Specialist]
+        Orchestrator --> Technical[Technical Specialist]
+        Orchestrator --> Financial[Financial Specialist]
+        
+        Legal -->|Cross-Check| Evidence[Document Evidence]
+        Technical -->|Cross-Check| Evidence
+        Financial -->|Cross-Check| Evidence
+    end
+    
+    Legal -->|Findings| Aggregator[Result Aggregator]
+    Technical -->|Findings| Aggregator
+    Financial -->|Findings| Aggregator
+    
+    Aggregator -->|Final Report| Backend
+    Backend -->|SSE Stream| Frontend
+```
+
+## Quick Start
 
 ### Prerequisites
-- Python 3.9+
-- [uv](https://github.com/astral-sh/uv) - Fast Python package installer
 
-### Installation
+- **Python 3.9+**
+- **Node.js 18+**
+- **uv** (Modern Python package manager)
+- **OpenAI API Key**
 
-1. **Install uv (if not already installed):**
-   
-	```powershell
-	pip install uv
-	```
+### 1. Backend Setup
 
-2. **Install dependencies:**
-   
-	```powershell
-	uv sync
-	```
+```bash
+# Clone the repository
+git clone https://github.com/johncortes117/ai-tender-analyst.git
+cd ai-tender-analyst
 
-3. **Configure environment variables:**
-   
-	Copy `.env.example` to `.env` and adjust the values according to your environment.
+# Install dependencies using uv
+uv sync
 
-4. **Run the development server:**
-   
-	```powershell
-	uv run uvicorn app.api.main:app --host 127.0.0.1 --port 8000 --reload
-	```
+# Configure Environment
+cp .env.example .env
+# Edit .env and add your OPENAI_API_KEY
 
-5. **Access interactive documentation:**
-   
-	- [http://localhost:8000/docs](http://localhost:8000/docs) (Swagger UI)
-	- [http://localhost:8000/redoc](http://localhost:8000/redoc) (ReDoc)
+# Run the API
+uv run uvicorn app.api.main:app --reload
+```
 
----
+### 2. Frontend Setup
 
+```bash
+cd frontend
 
-# Documentación del Proyecto `ai-service`
+# Install dependencies
+npm install
 
-## Descripción General
+# Run the development server
+npm run dev
+```
 
-`ai-service` es una API backend desarrollada con FastAPI para la gestión de licitaciones (tenders), propuestas y análisis documental. Incluye endpoints para subir archivos, procesar PDFs y ZIPs, transmitir datos en tiempo real mediante SSE, y generar resúmenes ejecutivos.
+Visit `http://localhost:3000` to start analyzing tenders.
 
----
-
-## Estructura de Carpetas
+## Project Structure
 
 ```
-ai-service/
+ai-tender-analyst/
 ├── app/
-│   ├── api/
-│   │   ├── main.py                # Entrypoint principal de la API FastAPI
-│   │   ├── schemas.py             # Esquemas Pydantic para validación y respuesta
-│   │   ├── service_utils.py       # Utilidades para SSE, transición de estado y manejo de archivos
-│   │   ├── utils/
-│   │   │   ├── __init__.py        # Exposición de utilidades y wrappers
-│   │   │   ├── proposal_utils.py  # Funciones para manejo de propuestas
-│   │   │   ├── pdf_json_utils.py  # Funciones para extracción de texto de PDFs
-│   │   ├── services/
-│   │   │   ├── sse_service.py     # Lógica específica para SSE
-│   │   │   ├── tender_service.py  # Lógica específica para tenders
-│   ├── core/
-│   │   ├── config.py              # Configuración global (CORS, límites, etc.)
-│   │   ├── constants.py           # Constantes globales
-├── data/
-│   ├── sse_data.json              # Archivo fuente para eventos SSE
-│   ├── proposals/                 # Propuestas organizadas por tender y contratista
-│   ├── tenders/                   # PDFs de licitaciones
-│   ├── temp_files/                # Archivos temporales
-├── output_agent.json              # Salida de agentes de análisis
-├── pyproject.toml                 # Configuración de dependencias (Poetry)
-├── README.md                      # Documentación general
+│   ├── agents/          # LangGraph agents and tools
+│   ├── api/             # FastAPI endpoints and routers
+│   ├── core/            # Configuration and constants
+│   └── utils/           # Helper functions
+├── data/                # Storage for tenders and proposals
+├── frontend/            # Next.js application
+├── tests/               # Pytest suite
+└── pyproject.toml       # Python dependencies (managed by uv)
 ```
 
----
+## Contributing
 
-## Endpoints Principales
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to get started, run tests, and submit PRs.
 
-### 1. `/save_sse_data` [POST]
-- **Función:** Recibe un JSON y lo guarda en `sse_data.json` para transmisión SSE.
-- **Body:** `{ ... }` (estructura flexible)
-- **Respuesta:** `{ "message": "Data saved successfully" }`
+## License
 
-### 2. `/stream_sse` [GET]
-- **Función:** Transmite los datos de `sse_data.json` como eventos SSE.
-- **Respuesta:** Stream de eventos SSE.
-
-### 3. `/tender/executive_summary` [GET]
-- **Función:** Verifica si el estado del tender cambió de "En Análisis" a "Completado" y retorna el resumen ejecutivo.
-- **Respuesta:** `{ "executiveSummary": ... }` o mensaje de estado.
-
-### 4. `/tenders/upload` [POST]
-- **Función:** Sube un PDF de licitación y crea un nuevo tender.
-- **Body:** Archivo PDF.
-- **Respuesta:** Detalles del tender creado.
-
-### 5. `/proposals/upload_differentiated/{tender_id}/{contractor_id}/{company_name}` [POST]
-- **Función:** Sube archivos de propuesta y anexos, organizados por tender, contratista y empresa.
-- **Body:** Archivos principales y anexos.
-- **Respuesta:** Detalles de la propuesta subida.
-
----
-
-## Esquemas de Datos
-
-### Propuesta (`proposals/`)
-```
-data/proposals/
-└── tender_{id}/
-		└── contractor_{id}/
-				└── {company_name}/
-						├── PRINCIPAL_{uuid}.pdf
-						├── ATTACHMENT_{uuid}.pdf
-						└── ...
-```
-
-### Licitación (`tenders/`)
-```
-data/tenders/
-└── tender_{id}/
-		└── TENDER_{id}.pdf
-```
-
-### SSE Data (`sse_data.json`)
-```json
-{
-	"state": "En Análisis",
-	"isLoading": true,
-	"analysisResult": {
-		"executiveSummary": "Resumen ejecutivo...",
-		...
-	}
-}
-```
-
----
-
-## Utilidades y Servicios
-
-- **service_utils.py:** Funciones para guardar y transmitir datos SSE, y detectar transición de estado.
-- **proposal_utils.py:** Funciones para crear estructura de propuestas, guardar archivos y obtener contratistas.
-- **pdf_json_utils.py:** Extracción de texto y páginas de PDFs.
-- **sse_service.py / tender_service.py:** Lógica especializada para SSE y tenders.
-
----
-
-## Flujo de Trabajo
-
-1. **Subida de archivos:** Los usuarios suben PDFs de licitaciones y propuestas mediante los endpoints correspondientes.
-2. **Procesamiento:** Los archivos se procesan y almacenan en la estructura de carpetas definida.
-3. **Transmisión SSE:** Los cambios en el estado o resultados de análisis se transmiten en tiempo real usando SSE.
-4. **Consulta de resúmenes:** Los usuarios pueden consultar el resumen ejecutivo cuando el estado del tender cambia.
-
----
-
-## Configuración
-
-- Variables de entorno en `.env.example`.
-- Dependencias gestionadas con Poetry (`pyproject.toml`).
-
----
-
-¿Necesitas la documentación en formato Markdown, PDF, o como endpoint `/docs`? ¿Quieres que incluya ejemplos de request/response?
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
