@@ -364,9 +364,26 @@ def generateTenderJsonData(tender_id: str) -> dict:
                                 # Extract last page for annexIndexText
                                 proposal_data["annexIndexText"] = extractLastPageFromPdf(str(principal_file))
                             
-                            # Extract annexes (ATTACHMENT files)
-                            for i, attachment_file in enumerate(attachment_files, 1):
-                                annex_key = f"annex{i}"
+                            # Extract annexes (ATTACHMENT files) using original filenames
+                            for attachment_file in attachment_files:
+                                # Use original filename without ATTACHMENT_ prefix for better matching
+                                original_name = attachment_file.name
+                                # Remove ATTACHMENT_ prefix if present
+                                if original_name.startswith("ATTACHMENT_"):
+                                    # Extract the part after ATTACHMENT_ and before UUID
+                                    # E.g., "ATTACHMENT_anexo_1_12345.pdf" -> "anexo_1.pdf"
+                                    parts = original_name.split("_")
+                                    if len(parts) >= 3:
+                                        # Reconstruct filename without UUID
+                                        # Join all parts except first (ATTACHMENT) and last (UUID + .pdf)
+                                        name_parts = parts[1:-1]
+                                        annex_key = "_".join(name_parts) + ".pdf"
+                                    else:
+                                        # Fallback to original name without prefix
+                                        annex_key = original_name.replace("ATTACHMENT_", "")
+                                else:
+                                    annex_key = original_name
+                                
                                 proposal_data["annexes"][annex_key] = extractTextFromPdf(str(attachment_file))
                             
                             result["proposals"].append(proposal_data)
