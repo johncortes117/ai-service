@@ -10,36 +10,34 @@ from ..services import llmService
 from langchain_core.messages import SystemMessage, HumanMessage
 from .schemas.masterChecklist import MasterChecklist, Requirement
 
-
 async def projectManagerRouterNode(state: ProposalAuditState) -> Dict[str, Any]:
     """
-    Acts as the intelligent router for a single proposal audit. This version is
-    robust against filename mismatches (e.g., case, extensions, underscores).
+    Acts as the intelligent router for a single proposal audit.
+    Robust against filename mismatches (case, extensions, underscores).
     """
     proposal = state.get("proposal", {})
     masterChecklist_dict = state.get("masterChecklist", {})
     companyName = proposal.get("companyName", "Unknown name")
     
-    print(f"--- 🧠 EXECUTING ROUTER for company: {companyName} ---")
+    print(f"EXECUTING ROUTER for company: {companyName}")
 
     try:
         masterChecklist = MasterChecklist.model_validate(masterChecklist_dict)
     except Exception as e:
-        print(f"--- ❌ ROUTER ERROR: Could not validate MasterChecklist schema: {e} ---")
+        print(f"ROUTER ERROR: Could not validate MasterChecklist schema: {e}")
         return {"technicalTasks": [], "financialTasks": [], "legalTasks": []}
 
     mainFormText = proposal.get("mainFormText")
-    annexes = proposal.get("attachments", {})  # Backend generates "attachments" not "annexes"
+    annexes = proposal.get("attachments", {})
     
     all_requirements = (masterChecklist.financialRequirements + 
                         masterChecklist.technicalRequirements + 
                         masterChecklist.legalRequirements)
     
     if not all_requirements:
-        print("--- ⏩ ROUTER SKIPPING: No requirements found in MasterChecklist. ---")
+        print("ROUTER SKIPPING: No requirements found in MasterChecklist.")
         return {"technicalTasks": [], "financialTasks": [], "legalTasks": []}
     
-    # Step 1: Create the requirement-to-annex map using the LLM
     requirement_names = [req.name for req in all_requirements]
     available_annexes = list(annexes.keys())
     
@@ -62,10 +60,9 @@ Main Proposal Form Text:
         for item in structured_map_response.get("annexMap", [])
     }
     
-    print("--- MAPA REQUISITO -> ANEXO CREADO POR LLM:", requirement_to_annex_map)
-    print("--- ANEXOS DISPONIBLES EN LA PROPUESTA:", list(annexes.keys()))
+    print("Requirement to Annex map created by LLM:", requirement_to_annex_map)
+    print("Available annexes in proposal:", list(annexes.keys()))
 
-    # Step 2: Prepare surgical tasks for each specialist with robust filename matching
     findings = state.get("findings", [])
     
     def normalize_filename(name: str | None) -> str:
@@ -93,8 +90,8 @@ Main Proposal Form Text:
                     "agentSource": "Project Manager", "severity": "CRITICAL",
                     "requirementName": requirement.name, "requirementDetails": requirement.details,
                     "isCompliant": False,
-                    "observation": f"Omisión Documental: El formulario referencia al anexo '{mapped_filename}', pero este archivo no se encontró entre los documentos entregados. No se puede verificar el requisito.",
-                    "recommendation": "Considerar como incumplimiento grave si el requisito es mandatorio."
+                    "observation": f"Document Omission: The form references annex '{mapped_filename}', but this file was not found among the submitted documents. Cannot verify requirement.",
+                    "recommendation": "Consider as serious non-compliance if the requirement is mandatory."
                 })
                 continue
             
@@ -109,7 +106,7 @@ Main Proposal Form Text:
     technicalTasks = prepare_tasks_for_specialist(masterChecklist.technicalRequirements)
     legalTasks = prepare_tasks_for_specialist(masterChecklist.legalRequirements)
 
-    print(f"--- 📬 Router prepared {len(technicalTasks)} technical, {len(financialTasks)} financial, {len(legalTasks)} legal tasks. ---")
+    print(f"Router prepared {len(technicalTasks)} technical, {len(financialTasks)} financial, {len(legalTasks)} legal tasks.")
     
     return {
         "findings": findings,
@@ -123,11 +120,11 @@ async def financialSpecialistNode(state: ProposalAuditState) -> Dict[str, Any]:
     Acts as the financial specialist. Receives a list of surgical tasks
     from the router and executes them by performing LLM-driven cross-validation.
     """
-    print("--- 🕵️ EXECUTING NODE: financialSpecialistNode ---")
+    print("EXECUTING NODE: financialSpecialistNode")
     
     financial_tasks: List[SpecialistTask] = state.get("financialTasks", [])
     if not financial_tasks:
-        print("--- ⏩ SKIPPING: No financial tasks to perform. ---")
+        print("SKIPPING: No financial tasks to perform.")
         return {}
 
     new_findings = []
@@ -136,10 +133,10 @@ async def financialSpecialistNode(state: ProposalAuditState) -> Dict[str, Any]:
         try:
             task = SpecialistTask.model_validate(task_dict)
         except Exception as e:
-            print(f"--- ❌ ERROR: Could not validate task_dict data: {e} ---")
+            print(f"ERROR: Could not validate task_dict data: {e}")
             continue
 
-        print(f"--- Auditing Financial Requirement: {task.requirementToVerify.name} ---")
+        print(f"Auditing Financial Requirement: {task.requirementToVerify.name}")
         
         context_for_llm = f"""
         **Requirement to Verify:**
@@ -178,21 +175,19 @@ async def financialSpecialistNode(state: ProposalAuditState) -> Dict[str, Any]:
             }
             new_findings.append(error_finding)
 
-    print(f"--- ✅ financialSpecialistNode generated {len(new_findings)} new findings. ---")
+    print(f"financialSpecialistNode generated {len(new_findings)} new findings.")
     
-    # This return structure is designed for LangGraph's state update mechanism
     return {"findings": new_findings}
-
 
 async def technicalSpecialistNode(state: ProposalAuditState) -> Dict[str, Any]:
     """
-    Acts as the technical specialist. (Replicates the financial specialist pattern).
+    Acts as the technical specialist.
     """
-    print("--- 🛠️ EXECUTING NODE: technicalSpecialistNode ---")
+    print("EXECUTING NODE: technicalSpecialistNode")
     
     technical_tasks: List[SpecialistTask] = state.get("technicalTasks", [])
     if not technical_tasks:
-        print("--- ⏩ SKIPPING: No technical tasks to perform. ---")
+        print("SKIPPING: No technical tasks to perform.")
         return {}
 
     new_findings = []
@@ -201,10 +196,10 @@ async def technicalSpecialistNode(state: ProposalAuditState) -> Dict[str, Any]:
         try:
             task = SpecialistTask.model_validate(task_dict)
         except Exception as e:
-            print(f"--- ❌ ERROR: Could not validate task_dict data: {e} ---")
+            print(f"ERROR: Could not validate task_dict data: {e}")
             continue
         
-        print(f"--- Auditing Technical Requirement: {task.requirementToVerify.name} ---")
+        print(f"Auditing Technical Requirement: {task.requirementToVerify.name}")
         
         context_for_llm = f"""
         **Requirement to Verify:**
@@ -243,20 +238,19 @@ async def technicalSpecialistNode(state: ProposalAuditState) -> Dict[str, Any]:
             }
             new_findings.append(error_finding)
 
-    print(f"--- ✅ technicalSpecialistNode generated {len(new_findings)} new findings. ---")
+    print(f"technicalSpecialistNode generated {len(new_findings)} new findings.")
 
     return {"findings": new_findings}
 
-
 async def legalSpecialistNode(state: ProposalAuditState) -> Dict[str, Any]:
     """
-    Acts as the legal specialist. (Replicates the financial specialist pattern).
+    Acts as the legal specialist.
     """
-    print("--- ⚖️ EXECUTING NODE: legalSpecialistNode ---")
+    print("EXECUTING NODE: legalSpecialistNode")
     
     legal_tasks: List[SpecialistTask] = state.get("legalTasks", [])
     if not legal_tasks:
-        print("--- ⏩ SKIPPING: No legal tasks to perform. ---")
+        print("SKIPPING: No legal tasks to perform.")
         return {}
 
     new_findings = []
@@ -265,10 +259,10 @@ async def legalSpecialistNode(state: ProposalAuditState) -> Dict[str, Any]:
         try:
             task = SpecialistTask.model_validate(task_dict)
         except Exception as e:
-            print(f"--- ❌ ERROR: Could not validate task_dict data: {e} ---")
+            print(f"ERROR: Could not validate task_dict data: {e}")
             continue
         
-        print(f"--- Auditing Legal Requirement: {task.requirementToVerify.name} ---")
+        print(f"Auditing Legal Requirement: {task.requirementToVerify.name}")
         
         context_for_llm = f"""
         **Requirement to Verify:**
@@ -307,10 +301,9 @@ async def legalSpecialistNode(state: ProposalAuditState) -> Dict[str, Any]:
             }
             new_findings.append(error_finding)
 
-    print(f"--- ✅ legalSpecialistNode generated {len(new_findings)} new findings. ---")
+    print(f"legalSpecialistNode generated {len(new_findings)} new findings.")
 
     return {"findings": new_findings}
-
 
 def compileProposalReportNode(state: ProposalAuditState) -> Dict[str, Any]:
     """
@@ -319,7 +312,7 @@ def compileProposalReportNode(state: ProposalAuditState) -> Dict[str, Any]:
     """
     proposal = state.get("proposal", {})
     companyName = proposal.get("companyName", "Unknown name")
-    print(f"---  compiling final report for company: {companyName} ---")
+    print(f"Compiling final report for company: {companyName}")
     
     findings = state.get("findings", [])
     

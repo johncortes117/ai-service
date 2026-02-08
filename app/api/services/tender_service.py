@@ -11,15 +11,13 @@ from fastapi import UploadFile, HTTPException
 from app.core import constants
 from . import pdf_service, file_service
 
-# --- Tender and Proposal Management ---
-
 async def upload_new_tender(file: UploadFile) -> Dict[str, Any]:
-    """Orchestrates uploading a tender with a new sequential ID."""
+    """Uploads a tender with a new sequential ID."""
     tender_id = file_service.get_next_tender_id(constants.TENDERS_DIR)
     return await upload_tender_with_id(tender_id, file)
 
 async def upload_tender_with_id(tender_id: str, file: UploadFile) -> Dict[str, Any]:
-    """Orchestrates uploading a tender with a specific ID."""
+    """Uploads a tender with a specific ID."""
     if file.content_type not in constants.ALLOWED_PDF_TYPES:
         raise HTTPException(status_code=400, detail="Invalid file type. Expected PDF.")
 
@@ -67,23 +65,16 @@ async def upload_proposal(
         "attachment_files": saved_attachments, "total_attachments": len(saved_attachments)
     }
 
-
-#---------
 def clean_pdf_text(text: str) -> str:
     """
-    Limpia el texto extraído de un PDF para hacerlo más legible para el LLM.
-    Elimina saltos de línea excesivos, espacios múltiples y líneas cortas que son artefactos.
+    Cleans extracted PDF text for better LLM readability.
+    Removes excessive line breaks, multiple spaces, and artifacts.
     """
-    # Une palabras cortadas por saltos de línea
     text = re.sub(r'-\n', '', text)
-    # Reemplaza múltiples saltos de línea por uno solo para separar párrafos
     text = re.sub(r'\n\s*\n', '\n\n', text)
-    # Elimina saltos de línea dentro de las frases para crear párrafos fluidos
     text = re.sub(r'(?<!\n)\n(?!\n)', ' ', text)
-    # Reemplaza múltiples espacios con un solo espacio
     text = re.sub(r' +', ' ', text)
     return text.strip()
-# --- Data Retrieval and Generation ---
 
 def get_tender_contractors(tender_id: str) -> List[Dict[str, Any]]:
     """Gets contractors and their companies for a specific tender."""
@@ -117,30 +108,24 @@ def get_contractors_for_batch(tender_ids: List[str]) -> Dict[str, Any]:
     return {tender_id: get_tender_contractors(tender_id) for tender_id in tender_ids}
 
 def _generate_tender_json_data_sync(tender_id: str) -> Dict[str, Any]:
-    """
-    El núcleo síncrono para generar el JSON, ahora con limpieza de texto.
-    """
+    """Synchronous core function to generate tender JSON with cleaned text."""
     result = {"tenderName": f"TENDER_{tender_id}", "tenderText": "", "proposals": []}
 
     tender_dir = constants.TENDERS_DIR / f"tender_{tender_id}"
     try:
         tender_pdf_path = next(tender_dir.glob(f"TENDER_{tender_id}.pdf"))
-        print(f"--- Found tender PDF: {tender_pdf_path} ---")
+        print(f"Found tender PDF: {tender_pdf_path}")
         
         raw_text = pdf_service.extract_text_from_pdf(str(tender_pdf_path))
-        
-        # --- ESTA ES LA CORRECCIÓN CLAVE ---
         result["tenderText"] = clean_pdf_text(raw_text)
-        
         result["tenderName"] = tender_pdf_path.stem
     except FileNotFoundError as e:
-        print(f"--- TENDER PARSING ERROR: {e} ---")
+        print(f"TENDER PARSING ERROR: {e}")
         result["tenderText"] = f"TENDER_FILE_NOT_FOUND: {e}"
     except Exception as e:
-        print(f"--- TENDER PARSING ERROR: {e} ---")
+        print(f"TENDER PARSING ERROR: {e}")
         result["tenderText"] = f"TENDER_PROCESSING_ERROR: {e}"
 
-    # El procesamiento de propuestas no necesita cambios
     proposals_dir = constants.PROPOSALS_DIR / f"tender_{tender_id}"
     if not proposals_dir.exists():
         return result
@@ -155,31 +140,23 @@ def _generate_tender_json_data_sync(tender_id: str) -> Dict[str, Any]:
                 }
                 try:
                     p_file = next(company_dir.glob(f"{constants.PREFIX_PRINCIPAL}_*.pdf"))
-                    # También limpiamos el texto de la propuesta principal
                     proposal_data["mainFormText"] = clean_pdf_text(pdf_service.extract_text_from_pdf(str(p_file)))
                     proposal_data["annexIndexText"] = pdf_service.extract_last_page_from_pdf(str(p_file))
                 except StopIteration: pass
                 
                 for a_file in company_dir.glob(f"{constants.PREFIX_ATTACHMENTS}_*.pdf"):
-                    # Extract original filename from pattern: ATTACHMENT_original_name_uuid.pdf
-                    # We want to use "original_name.pdf" as the key for better LLM mapping
-                    filename_parts = a_file.stem.split("_")  # Split by underscore
+                    filename_parts = a_file.stem.split("_")
                     if len(filename_parts) >= 3:
-                        # Format: ATTACHMENT_original_name_uuid
-                        # Remove prefix (ATTACHMENT) and UUID (last part), keep middle (original name)
-                        original_name_parts = filename_parts[1:-1]  # Everything between prefix and UUID
+                        original_name_parts = filename_parts[1:-1]
                         annex_key = "_".join(original_name_parts) + ".pdf"
                     else:
-                        # Fallback to full filename if pattern doesn't match expected format
                         annex_key = a_file.name
                     
-                    # También limpiamos el de los anexos
                     proposal_data["attachments"][annex_key] = clean_pdf_text(pdf_service.extract_text_from_pdf(str(a_file)))
                 
                 result["proposals"].append(proposal_data)
                 
     return result
-
 
 async def generate_full_tender_json(tender_id: str) -> Dict[str, Any]:
     """Async wrapper to generate tender JSON data in a thread pool."""
@@ -228,13 +205,11 @@ async def process_uploaded_pdf_or_zip(file: UploadFile) -> Dict[str, Any]:
         "total_files_processed": len(processed_files)
     }
 
-
 def get_proposal_details(tender_id: str, proposal_id: str) -> Dict[str, Any]:
     """
     Finds and returns the details for a single proposal within a tender.
-    The proposal_id is now interpreted as the contractor_id.
+    The proposal_id is interpreted as the contractor_id.
     """
-    # 1. Construimos la ruta directa a la carpeta del contratista
     contractor_dir = constants.PROPOSALS_DIR / f"tender_{tender_id}" / f"contractor_{proposal_id}"
 
     if not contractor_dir.is_dir():
@@ -243,7 +218,6 @@ def get_proposal_details(tender_id: str, proposal_id: str) -> Dict[str, Any]:
             detail=f"Proposal (application) with ID '{proposal_id}' (contractor) not found in tender {tender_id}."
         )
 
-    # 2. Asumimos que dentro de la carpeta del contratista hay UNA carpeta de compañía
     try:
         company_dir = next(d for d in contractor_dir.iterdir() if d.is_dir())
         company_name = company_dir.name
@@ -253,10 +227,8 @@ def get_proposal_details(tender_id: str, proposal_id: str) -> Dict[str, Any]:
             detail=f"No company folder found for proposal ID '{proposal_id}' in tender {tender_id}."
         )
 
-    # 3. Recopilamos la información de los archivos dentro de la carpeta de la compañía
     principal_file_info = "Not found"
     try:
-        # CORRECCIÓN: Usamos los prefijos del archivo de constantes
         principal_file = next(company_dir.glob(f"{constants.PREFIX_PRINCIPAL}*.pdf"))
         principal_file_info = {
             "filename": principal_file.name,
@@ -266,7 +238,6 @@ def get_proposal_details(tender_id: str, proposal_id: str) -> Dict[str, Any]:
         pass
 
     attachment_files_info = []
-    # CORRECCIÓN: Usamos los prefijos del archivo de constantes
     for attachment_file in company_dir.glob(f"{constants.PREFIX_ATTACHMENTS}*.pdf"):
         attachment_files_info.append({
             "filename": attachment_file.name,
@@ -275,7 +246,7 @@ def get_proposal_details(tender_id: str, proposal_id: str) -> Dict[str, Any]:
 
     return {
         "tenderId": tender_id,
-        "proposalId": proposal_id, # contractor_id
+        "proposalId": proposal_id,
         "contractorId": proposal_id,
         "companyName": company_name,
         "principalFile": principal_file_info,
