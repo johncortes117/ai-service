@@ -10,6 +10,7 @@ interface ProposalUploadFormProps {
   onUpload: (data: {
     contractorId: string;
     companyName: string;
+    ruc: string;
     principalFile: File;
     attachments: File[];
   }) => Promise<void>;
@@ -21,12 +22,13 @@ export function ProposalUploadForm({ tenderId, onUpload }: ProposalUploadFormPro
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [contractorId, setContractorId] = useState('');
   const [companyName, setCompanyName] = useState('');
+  const [ruc, setRuc] = useState('');
   const [principalFile, setPrincipalFile] = useState<File | null>(null);
   const [attachments, setAttachments] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const canProceedStep1 = contractorId.trim() !== '' && companyName.trim() !== '';
+  const canProceedStep1 = contractorId.trim() !== '' && companyName.trim() !== '' && ruc.trim() !== '' && /^\d{10,13}$/.test(ruc);
   const canProceedStep2 = principalFile !== null;
   const canSubmit = canProceedStep1 && canProceedStep2;
 
@@ -54,6 +56,7 @@ export function ProposalUploadForm({ tenderId, onUpload }: ProposalUploadFormPro
       await onUpload({
         contractorId,
         companyName,
+        ruc,
         principalFile: principalFile!,
         attachments,
       });
@@ -61,6 +64,7 @@ export function ProposalUploadForm({ tenderId, onUpload }: ProposalUploadFormPro
       // Reset form
       setContractorId('');
       setCompanyName('');
+      setRuc('');
       setPrincipalFile(null);
       setAttachments([]);
       setCurrentStep(1);
@@ -118,6 +122,8 @@ export function ProposalUploadForm({ tenderId, onUpload }: ProposalUploadFormPro
           setContractorId={setContractorId}
           companyName={companyName}
           setCompanyName={setCompanyName}
+          ruc={ruc}
+          setRuc={setRuc}
         />}
         
         {currentStep === 2 && <Step2Content 
@@ -184,13 +190,18 @@ function Step1Content({
   contractorId, 
   setContractorId, 
   companyName, 
-  setCompanyName 
+  setCompanyName,
+  ruc,
+  setRuc
 }: {
   contractorId: string;
   setContractorId: (value: string) => void;
   companyName: string;
   setCompanyName: (value: string) => void;
+  ruc: string;
+  setRuc: (value: string) => void;
 }) {
+  const isRucValid = ruc.trim() === '' || /^\d{10,13}$/.test(ruc);
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Contractor Information</h3>
@@ -219,6 +230,29 @@ function Step1Content({
           placeholder="e.g., Acme Corporation"
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+      </div>
+      
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          RUC (Tax ID) <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          value={ruc}
+          onChange={(e) => setRuc(e.target.value.replace(/\D/g, ''))}
+          placeholder="e.g., 1234567890001"
+          maxLength={13}
+          className={cn(
+            "w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2",
+            isRucValid ? "border-gray-300 focus:ring-blue-500" : "border-red-500 focus:ring-red-500"
+          )}
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          Ecuadorian RUC (10-13 digits)
+        </p>
+        {!isRucValid && ruc.trim() !== '' && (
+          <p className="text-xs text-red-600 mt-1">Invalid RUC format</p>
+        )}
       </div>
     </div>
   );

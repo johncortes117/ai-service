@@ -17,6 +17,7 @@ export default function UploadProposalsPage() {
   const handleProposalUpload = async (data: {
     contractorId: string;
     companyName: string;
+    ruc: string;
     principalFile: File;
     attachments: File[];
   }) => {
@@ -26,6 +27,7 @@ export default function UploadProposalsPage() {
         tenderId,
         data.contractorId,
         data.companyName,
+        data.ruc,
         data.principalFile,
         data.attachments
       );

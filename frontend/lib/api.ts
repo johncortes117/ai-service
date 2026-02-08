@@ -85,6 +85,7 @@ export const proposalAPI = {
         tenderId: string,
         contractorId: string,
         companyName: string,
+        ruc: string,
         principalFile: File,
         attachments: File[]
     ): Promise<any> => {
@@ -93,7 +94,7 @@ export const proposalAPI = {
         attachments.forEach(file => formData.append('attachment_files', file));
 
         const response = await fetch(
-            `${API_BASE}/proposals/upload/${tenderId}/${contractorId}/${companyName}`,
+            `${API_BASE}/proposals/upload/${tenderId}/${contractorId}/${companyName}/${ruc}`,
             {
                 method: 'POST',
                 body: formData,
