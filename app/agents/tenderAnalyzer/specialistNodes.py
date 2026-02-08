@@ -13,7 +13,7 @@ from .schemas.masterChecklist import MasterChecklist, Requirement
 async def projectManagerRouterNode(state: ProposalAuditState) -> Dict[str, Any]:
     """
     Acts as the intelligent router for a single proposal audit.
-    Robust against filename mismatches (case, extensions, underscores).
+    Validates RUC early and creates findings before specialist analysis.
     """
     proposal = state.get("proposal", {})
     masterChecklist_dict = state.get("masterChecklist", {})
@@ -37,6 +37,58 @@ async def projectManagerRouterNode(state: ProposalAuditState) -> Dict[str, Any]:
     if not all_requirements:
         print("ROUTER SKIPPING: No requirements found in MasterChecklist.")
         return {"technicalTasks": [], "financialTasks": [], "legalTasks": []}
+    
+    findings = state.get("findings", [])
+    
+    ruc = proposal.get("ruc")
+    if ruc:
+        from ..tenderAnalyzer.tools import validateRuc
+        print(f"Validating RUC: {ruc}")
+        
+        try:
+            ruc_result = await validateRuc.ainvoke({"ruc": ruc})
+            
+            if "error" in ruc_result:
+                findings.append({
+                    "agentSource": "Project Manager",
+                    "severity": "CRITICAL",
+                    "requirementName": "Company RUC Validation",
+                    "requirementDetails": "Verify bidder is registered with SRI (Tax Authority)",
+                    "isCompliant": False,
+                    "observation": f"RUC Validation Failed: {ruc_result['error']}. Company may not be legally registered.",
+                    "recommendation": "Request valid RUC or disqualify proposal."
+                })
+            else:
+                findings.append({
+                    "agentSource": "Project Manager",
+                    "severity": "OK",
+                    "requirementName": "Company RUC Validation",
+                    "requirementDetails": "Verify bidder is registered with SRI (Tax Authority)",
+                    "isCompliant": True,
+                    "observation": f"RUC verified: {ruc_result.get('bidderName', 'N/A')} - Status: {ruc_result.get('status', 'N/A')}",
+                    "recommendation": "Company legally registered with SRI."
+                })
+        except Exception as e:
+            print(f"RUC validation error: {e}")
+            findings.append({
+                "agentSource": "Project Manager",
+                "severity": "WARNING",
+                "requirementName": "Company RUC Validation",
+                "requirementDetails": "Verify bidder is registered with SRI (Tax Authority)",
+                "isCompliant": False,
+                "observation": f"Unable to verify RUC: {str(e)}. Manual verification required.",
+                "recommendation": "Verify company registration manually."
+            })
+    else:
+        findings.append({
+            "agentSource": "Project Manager",
+            "severity": "CRITICAL",
+            "requirementName": "Company RUC Validation",
+            "requirementDetails": "RUC number is mandatory for bidders",
+            "isCompliant": False,
+            "observation": "No RUC provided with proposal submission.",
+            "recommendation": "Request RUC from bidder."
+        })
     
     requirement_names = [req.name for req in all_requirements]
     available_annexes = list(annexes.keys())
@@ -63,8 +115,6 @@ Main Proposal Form Text:
     print("Requirement to Annex map created by LLM:", requirement_to_annex_map)
     print("Available annexes in proposal:", list(annexes.keys()))
 
-    findings = state.get("findings", [])
-    
     def normalize_filename(name: str | None) -> str:
         """Helper to compare filenames flexibly."""
         if not name: return ""

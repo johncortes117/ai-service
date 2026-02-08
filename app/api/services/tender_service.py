@@ -40,10 +40,10 @@ async def upload_tender_with_id(tender_id: str, file: UploadFile) -> Dict[str, A
     }
 
 async def upload_proposal(
-    tender_id: str, contractor_id: str, company_name: str,
+    tender_id: str, contractor_id: str, company_name: str, ruc: str,
     principal_file: UploadFile, attachment_files: List[UploadFile]
 ) -> Dict[str, Any]:
-    """Creates directory structure and saves all proposal files."""
+    """Creates directory structure and saves all proposal files with RUC metadata."""
     company_name_clean = "".join(c for c in company_name if c.isalnum() or c in (' ', '-', '_')).strip()
     company_name_clean = company_name_clean or "UNKNOWN_COMPANY"
     
@@ -59,10 +59,21 @@ async def upload_proposal(
         await file_service.save_upload_file(attachment, proposal_dir / a_filename)
         saved_attachments.append(a_filename)
     
+    import json
+    metadata = {
+        "ruc": ruc,
+        "companyName": company_name,
+        "contractorId": contractor_id,
+        "tenderId": tender_id
+    }
+    with open(proposal_dir / "metadata.json", "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2)
+    
     return {
         "message": "Files received and classified correctly.",
         "directory": str(proposal_dir), "principal_file": p_filename,
-        "attachment_files": saved_attachments, "total_attachments": len(saved_attachments)
+        "attachment_files": saved_attachments, "total_attachments": len(saved_attachments),
+        "ruc": ruc
     }
 
 def clean_pdf_text(text: str) -> str:
@@ -136,8 +147,19 @@ def _generate_tender_json_data_sync(tender_id: str) -> Dict[str, Any]:
             if company_dir.is_dir():
                 proposal_data = {
                     "contractorId": contractor_id, "companyName": company_dir.name,
-                    "mainFormText": "", "annexIndexText": "", "attachments": {}
+                    "mainFormText": "", "annexIndexText": "", "attachments": {}, "ruc": None
                 }
+                
+                metadata_file = company_dir / "metadata.json"
+                if metadata_file.exists():
+                    try:
+                        import json
+                        with open(metadata_file, "r", encoding="utf-8") as f:
+                            metadata = json.load(f)
+                            proposal_data["ruc"] = metadata.get("ruc")
+                    except Exception as e:
+                        print(f"Error reading metadata: {e}")
+                
                 try:
                     p_file = next(company_dir.glob(f"{constants.PREFIX_PRINCIPAL}_*.pdf"))
                     proposal_data["mainFormText"] = clean_pdf_text(pdf_service.extract_text_from_pdf(str(p_file)))

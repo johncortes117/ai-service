@@ -13,6 +13,7 @@ class ProposalUploadResponse(BaseModel):
     tender_id: str
     contractor_id: str
     company_name: str
+    ruc: str
     principal_file: str
     attachment_files: List[str]
     total_attachments: int
