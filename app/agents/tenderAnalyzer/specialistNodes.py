@@ -29,7 +29,7 @@ async def projectManagerRouterNode(state: ProposalAuditState) -> Dict[str, Any]:
         return {"technicalTasks": [], "financialTasks": [], "legalTasks": []}
 
     mainFormText = proposal.get("mainFormText")
-    annexes = proposal.get("annexes", {})
+    annexes = proposal.get("attachments", {})  # Backend generates "attachments" not "annexes"
     
     all_requirements = (masterChecklist.financialRequirements + 
                         masterChecklist.technicalRequirements + 
